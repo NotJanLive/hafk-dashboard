@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+/*
+ * HAFK "control room" theme. Graphite with a slight green tint, mint accent shared with the
+ * bot's embeds (Brand.PRIMARY), amber for attention, red for errors.
+ */
+:root {
+  --bg: #0a0e0d;
+  --surface: #0f1513;
+  --surface-2: #141c19;
+  --surface-3: #1a2420;
+  --line: #1f2a26;
+  --line-strong: #2b3934;
+  --text: #e3ece7;
+  --muted: #8a9993;
+  --faint: #5b6a64;
+  --accent: #3ddc97;
+  --accent-strong: #63eeaf;
+  --accent-ink: #03150d;
+  --accent-soft: rgb(61 220 151 / 0.1);
+  --warn: #ffb547;
+  --warn-soft: rgb(255 181 71 / 0.1);
+  --danger: #ff5c6c;
+  --danger-soft: rgb(255 92 108 / 0.1);
+  --info: #5aa9ff;
+  --grid-dot: rgb(227 236 231 / 0.045);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f3f6f4;
+    --surface: #ffffff;
+    --surface-2: #f6f9f7;
+    --surface-3: #ecf1ee;
+    --line: #e0e7e3;
+    --line-strong: #cbd6d0;
+    --text: #0d1512;
+    --muted: #51605a;
+    --faint: #85938d;
+    --accent: #0f9f66;
+    --accent-strong: #0b8754;
+    --accent-ink: #ffffff;
+    --accent-soft: rgb(15 159 102 / 0.09);
+    --warn: #b86e00;
+    --warn-soft: rgb(184 110 0 / 0.09);
+    --danger: #d42d40;
+    --danger-soft: rgb(212 45 64 / 0.08);
+    --info: #2b6fd6;
+    --grid-dot: rgb(13 21 18 / 0.07);
+    color-scheme: light;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}
+
+/* Base rules live in a layer so Tailwind utilities (e.g. focus:outline-none) can override them. */
+@layer base {
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--accent-soft);
+  }
+}
+
+/* Engineering-paper dot grid behind content areas. */
+@utility canvas {
+  background-image: radial-gradient(var(--grid-dot) 1px, transparent 1px);
+  background-size: 18px 18px;
+  background-position: -9px -9px;
+}
+
+/* Small uppercase mono labels used for section headers and readouts. */
+@utility label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+@keyframes led-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+}
+
+@utility animate-led {
+  animation: led-pulse 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-led {
+    animation: none;
+  }
+}
