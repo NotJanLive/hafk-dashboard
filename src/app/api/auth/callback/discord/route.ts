@@ -15,7 +15,7 @@ const pendingLogin = z.object({
 });
 
 function fail(reason: string) {
-  return NextResponse.redirect(new URL(`/?error=${reason}`, env().APP_URL));
+  return NextResponse.redirect(new URL(`/?error=${reason}`, env().DASHBOARD_URL));
 }
 
 export async function GET(request: NextRequest) {
@@ -46,5 +46,5 @@ export async function GET(request: NextRequest) {
     return fail("login_failed");
   }
 
-  return NextResponse.redirect(new URL(safeReturnTo(pending.data.returnTo), env().APP_URL));
+  return NextResponse.redirect(new URL(safeReturnTo(pending.data.returnTo), env().DASHBOARD_URL));
 }

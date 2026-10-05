@@ -2,12 +2,12 @@ import "server-only";
 import { z } from "zod";
 
 const schema = z.object({
-  APP_URL: z.url().transform((url) => url.replace(/\/$/, "")),
+  DASHBOARD_URL: z.url().transform((url) => url.replace(/\/$/, "")),
   SESSION_SECRET: z.string().min(32, "SESSION_SECRET must be at least 32 characters"),
   DISCORD_CLIENT_ID: z.string().regex(/^\d+$/, "DISCORD_CLIENT_ID must be the application ID"),
   DISCORD_CLIENT_SECRET: z.string().min(1),
   BOT_API_URL: z.url().transform((url) => url.replace(/\/$/, "")),
-  BOT_API_TOKEN: z.string().min(32, "BOT_API_TOKEN must match the bot's API_TOKEN"),
+  BOT_API_TOKEN: z.string().min(32, "BOT_API_TOKEN must be identical in bot and dashboard"),
   BOT_INVITE_PERMISSIONS: z.string().regex(/^\d+$/).default("268823632"),
 });
 

@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
   (await cookies()).set(OAUTH_COOKIE, JSON.stringify({ state, codeVerifier, returnTo }), {
     httpOnly: true,
-    secure: env().APP_URL.startsWith("https://"),
+    secure: env().DASHBOARD_URL.startsWith("https://"),
     sameSite: "lax",
     path: "/api/auth",
     maxAge: OAUTH_COOKIE_MAX_AGE,

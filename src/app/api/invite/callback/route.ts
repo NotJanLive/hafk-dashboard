@@ -11,19 +11,19 @@ const POLL_INTERVAL_MS = 750;
  * received the join event, then continue straight into that server's setup.
  */
 export async function GET(request: NextRequest) {
-  const { APP_URL } = env();
+  const { DASHBOARD_URL } = env();
   const guildId = request.nextUrl.searchParams.get("guild_id");
   if (request.nextUrl.searchParams.get("error") || !guildId || !isSnowflake(guildId)) {
-    return NextResponse.redirect(new URL("/servers", APP_URL));
+    return NextResponse.redirect(new URL("/servers", DASHBOARD_URL));
   }
 
   const deadline = Date.now() + WAIT_FOR_JOIN_MS;
   while (Date.now() < deadline) {
     const bot = await botApi.bot().catch(() => null);
     if (bot?.guildIds.includes(guildId)) {
-      return NextResponse.redirect(new URL(`/servers/${guildId}`, APP_URL));
+      return NextResponse.redirect(new URL(`/servers/${guildId}`, DASHBOARD_URL));
     }
     await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
   }
-  return NextResponse.redirect(new URL("/servers", APP_URL));
+  return NextResponse.redirect(new URL("/servers", DASHBOARD_URL));
 }

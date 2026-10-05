@@ -14,5 +14,5 @@ export async function POST() {
       .revokeToken(token)
       .catch(() => undefined);
   }
-  return NextResponse.redirect(new URL("/", env().APP_URL), { status: 303 });
+  return NextResponse.redirect(new URL("/", env().DASHBOARD_URL), { status: 303 });
 }
