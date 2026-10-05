@@ -57,7 +57,6 @@ export type GuildDetail = {
 };
 
 export type Settings = {
-  logChannelId: string | null;
   dashboardRoleIds: string[];
   setupCompleted: boolean;
 };

@@ -1,151 +1,100 @@
-import { ArrowRight, Check, Circle } from "lucide-react";
+import { CircleAlert, PartyPopper } from "lucide-react";
 import Link from "next/link";
 import { AuditList } from "@/components/audit/audit-list";
-import { ButtonLink } from "@/components/ui/button";
-import { Led } from "@/components/ui/led";
-import { PageHeader, Panel } from "@/components/ui/panel";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardBody, CardHeader } from "@/components/ui/card";
+import { GuildIcon } from "@/components/ui/guild-icon";
+import { Switch } from "@/components/ui/switch";
 import { botApi } from "@/lib/bot-api/client";
 import { missingBotPermissions } from "@/lib/discord/permissions";
-import { requireGuild } from "@/lib/dal";
+import { requireConfiguredGuild } from "@/lib/dal";
 import { MODULES } from "@/lib/modules";
 import { formatNumber } from "@/lib/utils";
 
 export default async function OverviewPage(props: PageProps<"/servers/[guildId]">) {
   const { guildId } = await props.params;
-  const { user, guild } = await requireGuild(guildId);
-  const [settings, audit] = await Promise.all([
-    botApi.settings(guild.id, user.id),
-    botApi.auditLog(guild.id, user.id, 5),
-  ]);
+  const { welcome } = await props.searchParams;
+  const { user, guild } = await requireConfiguredGuild(guildId);
+  const audit = await botApi.auditLog(guild.id, user.id, 5);
 
   const missing = missingBotPermissions(guild.bot.permissions);
-  const textChannels = guild.channels.filter((channel) => channel.type === "text").length;
-  const voiceChannels = guild.channels.filter((channel) => channel.type === "voice" || channel.type === "stage").length;
-  const base = `/servers/${guild.id}`;
-
-  const readouts = [
-    { label: "Mitglieder", value: formatNumber(guild.memberCount) },
-    { label: "Textkanäle", value: formatNumber(textChannels) },
-    { label: "Sprachkanäle", value: formatNumber(voiceChannels) },
-    { label: "Rollen", value: formatNumber(guild.roles.length) },
-  ];
-
-  const steps = [
-    { done: settings.logChannelId !== null, label: "Log-Kanal festlegen" },
-    { done: settings.dashboardRoleIds.length > 0, label: "Dashboard-Rollen wählen (optional)" },
-    { done: settings.setupCompleted, label: "Setup abschließen" },
-  ];
+  const channelCount = guild.channels.filter((channel) => channel.type !== "category").length;
 
   return (
-    <>
-      <PageHeader
-        label="Übersicht"
-        title={guild.name}
-        meta={<span className="font-mono text-[12px] text-faint">ID {guild.id}</span>}
-      />
-
-      {!settings.setupCompleted && (
-        <section className="mb-6 flex flex-col gap-4 rounded-xl border border-warn/30 bg-warn-soft p-5 md:flex-row md:items-center">
-          <div className="flex-1">
-            <p className="flex items-center gap-2 text-sm font-semibold">
-              <Led state="warn" />
-              Setup noch nicht abgeschlossen
-            </p>
-            <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] text-muted">
-              {steps.map((step) => (
-                <li key={step.label} className="flex items-center gap-1.5">
-                  {step.done ? <Check className="size-3.5 text-accent" /> : <Circle className="size-3.5 text-faint" />}
-                  <span className={step.done ? "text-faint line-through" : undefined}>{step.label}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <ButtonLink href={`${base}/settings`}>
-            Setup fortsetzen
-            <ArrowRight />
-          </ButtonLink>
-        </section>
+    <div className="space-y-8">
+      {welcome && (
+        <div className="flex items-center gap-3 rounded-2xl bg-primary-soft px-5 py-4 text-sm font-semibold">
+          <PartyPopper className="size-5 text-primary-hover" />
+          Einrichtung abgeschlossen! Als Nächstes kannst du die Module für deinen Server aktivieren.
+        </div>
       )}
 
-      <dl className="mb-6 grid grid-cols-2 overflow-hidden rounded-xl border border-line bg-surface md:grid-cols-4">
-        {readouts.map((readout, index) => (
-          <div
-            key={readout.label}
-            className={`px-5 py-4 ${index % 2 === 1 ? "border-l border-line" : ""} ${index >= 2 ? "border-t border-line md:border-t-0" : ""} md:border-l md:first:border-l-0`}
-          >
-            <dt className="label">{readout.label}</dt>
-            <dd className="mt-1.5 font-mono text-2xl font-semibold tabular-nums">{readout.value}</dd>
-          </div>
-        ))}
-      </dl>
-
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-        <Panel title="Module" bodyClassName="p-0">
-          <ul className="divide-y divide-line">
-            <li>
-              <Link
-                href={`${base}/settings`}
-                className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-surface-2"
-              >
-                <Led state={settings.setupCompleted ? "on" : "warn"} />
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold">Server-Setup</span>
-                  <span className="block truncate text-[12.5px] text-muted">Log-Kanal und Dashboard-Zugriff</span>
-                </span>
-                <span className="font-mono text-[11px] text-muted uppercase">
-                  {settings.setupCompleted ? "aktiv" : "offen"}
-                </span>
-              </Link>
-            </li>
-            {MODULES.map((module) => (
-              <li key={module.id} className="flex items-center gap-4 px-5 py-3.5">
-                <Led state="off" />
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold text-muted">{module.name}</span>
-                  <span className="block truncate text-[12.5px] text-faint">{module.description}</span>
-                </span>
-                <span className="font-mono text-[11px] text-faint uppercase">geplant</span>
-              </li>
-            ))}
-          </ul>
-        </Panel>
-
-        <div className="flex flex-col gap-6">
-          <Panel title="Bot-Berechtigungen">
-            {missing.length === 0 ? (
-              <p className="flex items-center gap-2.5 text-sm text-muted">
-                <Led state="on" pulse={false} />
-                Alle benötigten Rechte vorhanden
-              </p>
-            ) : (
-              <>
-                <ul className="space-y-2">
-                  {missing.map((permission) => (
-                    <li key={permission.key} className="flex items-center gap-2.5 text-sm">
-                      <Led state="error" pulse={false} />
-                      {permission.label}
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-4 text-[12.5px] leading-relaxed text-muted">
-                  Gib der Bot-Rolle diese Rechte oder lade den Bot über die Serverauswahl neu ein.
-                </p>
-              </>
-            )}
-          </Panel>
-
-          <Panel
-            title="Letzte Änderungen"
-            actions={
-              <Link href={`${base}/audit-log`} className="text-[12px] text-muted hover:text-accent">
-                Alle anzeigen
-              </Link>
-            }
-          >
-            <AuditList entries={audit} channels={guild.channels} roles={guild.roles} compact />
-          </Panel>
+      <Card className="flex flex-wrap items-center gap-5 p-6">
+        <GuildIcon name={guild.name} iconUrl={guild.iconUrl} size={72} />
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate text-2xl font-bold tracking-tight">{guild.name}</h1>
+          <p className="mt-1 text-sm text-muted">
+            {formatNumber(guild.memberCount)} Mitglieder · {formatNumber(channelCount)} Kanäle ·{" "}
+            {formatNumber(guild.roles.length)} Rollen
+          </p>
         </div>
-      </div>
-    </>
+      </Card>
+
+      {missing.length > 0 && (
+        <div className="flex gap-4 rounded-2xl border border-warning/30 bg-warning-soft p-5">
+          <CircleAlert className="size-5 shrink-0 text-warning" />
+          <div className="text-sm">
+            <p className="font-semibold text-warning">Dem Bot fehlen Rechte</p>
+            <p className="mt-1 text-muted">
+              {missing.map((permission) => permission.label).join(", ")}. Gib der Bot-Rolle diese Rechte in den
+              Servereinstellungen, sonst funktionieren einzelne Module nicht.
+            </p>
+          </div>
+        </div>
+      )}
+
+      <section>
+        <div className="mb-4">
+          <h2 className="text-xl font-bold">Module</h2>
+          <p className="mt-1 text-sm text-muted">Aktiviere die Funktionen, die du auf deinem Server nutzen willst.</p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {MODULES.map((module) => (
+            <Card key={module.id} className="flex flex-col p-5">
+              <div className="flex items-start justify-between">
+                <span className={`flex size-11 items-center justify-center rounded-xl ${module.tint}`}>
+                  <module.icon className="size-5" />
+                </span>
+                <Switch checked={false} disabled={!module.available} label={`${module.name} aktivieren`} />
+              </div>
+              <h3 className="mt-4 font-bold">{module.name}</h3>
+              <p className="mt-1 flex-1 text-sm leading-relaxed text-muted">{module.description}</p>
+              {!module.available && (
+                <div className="mt-4">
+                  <Badge>Bald verfügbar</Badge>
+                </div>
+              )}
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      <Card>
+        <CardHeader
+          title="Letzte Änderungen"
+          actions={
+            <Link
+              href={`/servers/${guild.id}/audit-log`}
+              className="text-sm font-semibold text-primary-hover hover:underline"
+            >
+              Alle anzeigen
+            </Link>
+          }
+        />
+        <CardBody>
+          <AuditList entries={audit} channels={guild.channels} roles={guild.roles} />
+        </CardBody>
+      </Card>
+    </div>
   );
 }

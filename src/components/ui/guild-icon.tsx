@@ -21,7 +21,7 @@ export function GuildIcon({
         alt=""
         width={size}
         height={size}
-        className={cn("shrink-0 rounded-[30%] bg-surface-3 object-cover", className)}
+        className={cn("shrink-0 rounded-full bg-surface-3 object-cover", className)}
         style={style}
       />
     );
@@ -29,9 +29,9 @@ export function GuildIcon({
   return (
     <span
       aria-hidden
-      style={{ ...style, fontSize: Math.max(10, size * 0.36) }}
+      style={{ ...style, fontSize: Math.max(11, size * 0.36) }}
       className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-[30%] border border-line-strong bg-surface-3 font-mono font-bold text-muted",
+        "inline-flex shrink-0 items-center justify-center rounded-full bg-surface-3 font-bold text-muted",
         className,
       )}
     >

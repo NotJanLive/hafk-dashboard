@@ -58,12 +58,20 @@ export async function fetchUserGuilds(userId: string, accessToken: string): Prom
   return guilds;
 }
 
+/**
+ * Invite link for the bot. After authorizing, Discord sends the admin back to the dashboard
+ * (`/api/invite/callback`), which opens the setup of the new server. Any server admin can use it
+ * as long as "Public Bot" is enabled in the Developer Portal.
+ */
 export function botInviteUrl(guildId?: string) {
-  const { DISCORD_CLIENT_ID, BOT_INVITE_PERMISSIONS } = env();
+  const { DISCORD_CLIENT_ID, BOT_INVITE_PERMISSIONS, APP_URL } = env();
   const url = new URL("https://discord.com/oauth2/authorize");
   url.searchParams.set("client_id", DISCORD_CLIENT_ID);
   url.searchParams.set("scope", "bot applications.commands");
   url.searchParams.set("permissions", BOT_INVITE_PERMISSIONS);
+  url.searchParams.set("integration_type", "0");
+  url.searchParams.set("response_type", "code");
+  url.searchParams.set("redirect_uri", `${APP_URL}/api/invite/callback`);
   if (guildId) {
     url.searchParams.set("guild_id", guildId);
     url.searchParams.set("disable_guild_select", "true");

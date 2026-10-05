@@ -1,29 +1,37 @@
+import Image from "next/image";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-export function LogoMark({ className }: { className?: string }) {
+export function LogoImage({
+  size = 36,
+  className,
+  priority,
+}: {
+  size?: number;
+  className?: string;
+  priority?: boolean;
+}) {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden className={cn("size-7 shrink-0", className)}>
-      <rect x="1" y="1" width="22" height="22" rx="6.5" fill="var(--accent)" />
-      <path
-        d="M8 6.5v11M16 6.5v11M8 12h8"
-        stroke="var(--accent-ink)"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <circle cx="16" cy="12" r="1.9" fill="var(--accent)" stroke="var(--accent-ink)" strokeWidth="1.6" />
-    </svg>
+    <Image
+      src="/brand/logo.webp"
+      alt="HAF Kooperation"
+      width={size}
+      height={size}
+      priority={priority}
+      className={cn("shrink-0 object-contain", className)}
+    />
   );
 }
 
+/** Logo with wordmark, links to the server picker. */
 export function Logo({ className }: { className?: string }) {
   return (
-    <span className={cn("inline-flex items-center gap-2.5", className)}>
-      <LogoMark />
-      <span className="flex flex-col leading-none">
-        <span className="font-mono text-[15px] font-bold tracking-tight text-text">HAFK</span>
-        <span className="label mt-1 !text-[9.5px]">control</span>
+    <Link href="/servers" className={cn("flex items-center gap-3", className)}>
+      <LogoImage size={38} priority />
+      <span className="leading-tight">
+        <span className="block text-[15px] font-bold tracking-tight">HAF Kooperation</span>
+        <span className="block text-xs font-medium text-faint">Dashboard</span>
       </span>
-    </span>
+    </Link>
   );
 }

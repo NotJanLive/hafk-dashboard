@@ -1,48 +1,101 @@
+import {
+  Gamepad2,
+  type LucideIcon,
+  MessageSquareText,
+  Mic,
+  Music,
+  Radio,
+  SmilePlus,
+  Ticket,
+  Trophy,
+  Vote,
+} from "lucide-react";
+
 /**
- * Catalog of bot modules shown in the navigation and the overview "patch panel".
+ * Catalog of bot modules shown in the navigation and on the overview.
  * A module becomes `available` once its bot and dashboard parts are merged.
  */
-export type ModuleId =
-  | "embeds"
-  | "reaction-roles"
-  | "tickets"
-  | "polls"
-  | "temp-voice"
-  | "levels"
-  | "live-ticker"
-  | "server-status"
-  | "music";
-
 export type ModuleInfo = {
-  id: ModuleId;
+  id: string;
   name: string;
   description: string;
+  icon: LucideIcon;
+  /** Tailwind classes for the icon tile, so modules are easy to tell apart at a glance. */
+  tint: string;
   available: boolean;
 };
 
 export const MODULES: ModuleInfo[] = [
-  { id: "embeds", name: "Embeds", description: "Eingebettete Nachrichten gestalten und senden", available: false },
+  {
+    id: "embeds",
+    name: "Embeds",
+    description: "Schöne eingebettete Nachrichten gestalten und senden",
+    icon: MessageSquareText,
+    tint: "bg-sky-500/15 text-sky-400",
+    available: false,
+  },
   {
     id: "reaction-roles",
     name: "Reaction Roles",
-    description: "Rollen per Button, Menü oder Reaktion",
+    description: "Mitglieder vergeben sich Rollen per Button, Menü oder Reaktion",
+    icon: SmilePlus,
+    tint: "bg-amber-500/15 text-amber-400",
     available: false,
   },
-  { id: "tickets", name: "Tickets", description: "Support-Tickets mit Kategorien und Transcripts", available: false },
+  {
+    id: "tickets",
+    name: "Tickets",
+    description: "Support-Tickets mit Kategorien und Verläufen",
+    icon: Ticket,
+    tint: "bg-rose-500/15 text-rose-400",
+    available: false,
+  },
   {
     id: "polls",
     name: "Umfragen",
     description: "Anonyme Abstimmungen ohne sichtbare Zwischenstände",
+    icon: Vote,
+    tint: "bg-violet-500/15 text-violet-400",
     available: false,
   },
-  { id: "temp-voice", name: "Temp Voice", description: "Sprachkanäle, die beim Beitreten entstehen", available: false },
-  { id: "levels", name: "Level", description: "XP und Errungenschaften für Aktivität", available: false },
+  {
+    id: "temp-voice",
+    name: "Temp Voice",
+    description: "Eigene Sprachkanäle, die beim Beitreten entstehen",
+    icon: Mic,
+    tint: "bg-emerald-500/15 text-emerald-400",
+    available: false,
+  },
+  {
+    id: "levels",
+    name: "Level",
+    description: "XP und Errungenschaften für Aktivität im Chat",
+    icon: Trophy,
+    tint: "bg-yellow-500/15 text-yellow-400",
+    available: false,
+  },
   {
     id: "live-ticker",
     name: "Live-Ticker",
-    description: "Benachrichtigungen für Twitch und YouTube",
+    description: "Benachrichtigungen, wenn jemand auf Twitch oder YouTube live geht",
+    icon: Radio,
+    tint: "bg-red-500/15 text-red-400",
     available: false,
   },
-  { id: "server-status", name: "Server-Status", description: "Minecraft, LS und ETS/ATS im Blick", available: false },
-  { id: "music", name: "Musik", description: "Musik in Sprachkanälen", available: false },
+  {
+    id: "server-status",
+    name: "Server-Status",
+    description: "Minecraft, LS und ETS/ATS-Server im Blick",
+    icon: Gamepad2,
+    tint: "bg-indigo-500/15 text-indigo-400",
+    available: false,
+  },
+  {
+    id: "music",
+    name: "Musik",
+    description: "Musik in Sprachkanälen abspielen",
+    icon: Music,
+    tint: "bg-pink-500/15 text-pink-400",
+    available: false,
+  },
 ];
