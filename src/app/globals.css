@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+/*
+ * HAF dashboard theme: neutral blue-grey surfaces, one confident primary blue, semantic colors
+ * only where they carry meaning. The logo's rainbow ring is used as a single brand accent.
+ */
+:root {
+  --bg: #0d0f14;
+  --sidebar: #11131a;
+  --surface: #161921;
+  --surface-2: #1c2029;
+  --surface-3: #242935;
+  --border: #222734;
+  --border-strong: #2e3444;
+  --text: #eef0f6;
+  --muted: #a3a9ba;
+  --faint: #6c7387;
+  --primary: #5b6cff;
+  --primary-hover: #6d7cff;
+  --primary-soft: rgb(91 108 255 / 0.14);
+  --success: #2fbf71;
+  --success-soft: rgb(47 191 113 / 0.13);
+  --warning: #f5a524;
+  --warning-soft: rgb(245 165 36 / 0.13);
+  --danger: #ef4d5a;
+  --danger-soft: rgb(239 77 90 / 0.13);
+  --brand-ring: conic-gradient(from 200deg, #ff3d5a, #ff9a1f, #ffe14d, #36e07a, #23c8ff, #4d6bff, #b44dff, #ff3d5a);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-sidebar: var(--sidebar);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Base rules live in a layer so Tailwind utilities can override them. */
+@layer base {
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--primary-soft);
+  }
+}
+
+/* Soft rainbow glow echoing the logo ring, used once on the login screen. */
+@utility brand-glow {
+  background: var(--brand-ring);
+  filter: blur(70px);
+  opacity: 0.35;
+}
