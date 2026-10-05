@@ -17,11 +17,12 @@ src
 ├── app/
 │   ├── page.tsx                      Login
 │   ├── api/auth/…                    Discord-OAuth (login, callback, logout)
+│   ├── api/invite/callback           Rückkehr nach dem Einladen des Bots
 │   └── servers/
 │       ├── page.tsx                  Serverauswahl
-│       └── [guildId]/                Übersicht, Einstellungen, Audit-Log
+│       └── [guildId]/                Einrichtung, Übersicht, Einstellungen, Änderungsprotokoll
 ├── components/
-│   ├── ui/                           Basiskomponenten (Button, Panel, Led, Picker, …)
+│   ├── ui/                           Basiskomponenten (Button, Card, Badge, Switch, RolePicker, …)
 │   ├── shell/                        Sidebar, Topbar, User-Menü
 │   └── …
 └── lib/
@@ -34,15 +35,26 @@ src
 
 ## Design
 
-Leitidee ist ein „Control Room“: ruhige Graphit-Flächen, Mint als Akzent (dieselbe Farbe wie die Bot-Embeds)
-und Status-LEDs als wiederkehrendes Element. Labels und IDs stehen in Mono-Schrift. Alle Farben sind Tokens
-in `src/app/globals.css`. Hell- und Dunkelmodus folgen der Systemeinstellung.
+Aufgebaut wie bekannte Bot-Dashboards (MEE6, Carl-bot): oben die Leiste mit Logo und Konto, links die Server- und
+Modulnavigation, rechts der Inhalt mit Karten. Neutrale dunkle Flächen, ein klares Blau als Hauptfarbe. Der
+Regenbogen-Ring aus dem Logo taucht nur einmal als Glow auf der Login-Seite auf. Alle Farben sind Tokens in
+`src/app/globals.css`, das Logo liegt unter `public/brand/`.
+
+## Einladen und Einrichtung
+
+1. In der Serverauswahl stehen alle Server, auf denen der Nutzer Admin ist. Ohne Bot zeigt die Karte „Bot hinzufügen“.
+2. Nach dem Einladen leitet Discord zurück auf `/api/invite/callback`. Von dort geht es direkt zur Einrichtung des Servers.
+3. Der Einrichtungsassistent (`/servers/[id]/setup`) prüft die Bot-Rechte und fragt die Dashboard-Rollen ab.
+   Bis er abgeschlossen ist, sind alle anderen Seiten des Servers gesperrt.
+
+Damit auch andere Admins einladen können, muss im Developer Portal **Public Bot** eingeschaltet sein.
 
 ## Lokal starten
 
 1. Den Bot lokal starten (siehe Bot-README), sodass die API auf `http://127.0.0.1:8081` läuft.
 2. `.env.example` nach `.env.local` kopieren und ausfüllen. `BOT_API_TOKEN` muss dem `API_TOKEN` des Bots entsprechen.
-3. Im Discord Developer Portal unter OAuth2 → Redirects `http://localhost:3000/api/auth/callback/discord` eintragen.
+3. Im Discord Developer Portal unter OAuth2 → Redirects `http://localhost:3000/api/auth/callback/discord` und
+   `http://localhost:3000/api/invite/callback` eintragen.
 4. Danach:
    ```bash
    npm install

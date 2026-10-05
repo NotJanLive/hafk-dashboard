@@ -1,34 +1,28 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Manrope } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-const manrope = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin"],
-});
-
-const jetbrains = JetBrains_Mono({
-  variable: "--font-jetbrains",
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: { default: "HAFK Dashboard", template: "%s · HAFK" },
-  description: "Steuerzentrale für den Hans & Friends Discord-Bot",
+  title: { default: "HAF Dashboard", template: "%s · HAF Dashboard" },
+  description: "Dashboard für den Discord-Bot der HAF Kooperation",
   robots: { index: false, follow: false },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="de" className={`${manrope.variable} ${jetbrains.variable} h-full antialiased`}>
+    <html lang="de" className={`${jakarta.variable} h-full antialiased`}>
       <body className="min-h-full">
         {children}
         <Toaster
           position="bottom-right"
-          toastOptions={{
-            className: "!bg-surface-2 !border-line-strong !text-text !font-sans",
-          }}
+          theme="dark"
+          toastOptions={{ className: "!bg-surface-2 !border-border-strong !text-text !font-sans !rounded-xl" }}
         />
       </body>
     </html>

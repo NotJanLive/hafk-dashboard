@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
+import { Logo } from "@/components/brand/logo";
 import { UserMenu } from "@/components/shell/user-menu";
-import { Led } from "@/components/ui/led";
+import { Badge } from "@/components/ui/badge";
 import type { SessionUser } from "@/lib/auth/session";
 import { botApi } from "@/lib/bot-api/client";
 
@@ -8,19 +8,18 @@ async function BotStatus() {
   const health = await botApi.health().catch(() => null);
   const online = health?.gateway === "CONNECTED";
   return (
-    <span className="flex items-center gap-2 font-mono text-[11.5px] text-muted">
-      <Led state={online ? "on" : "error"} />
-      {online ? "Bot online" : "Bot nicht erreichbar"}
-    </span>
+    <Badge tone={online ? "success" : "danger"} dot className="hidden sm:inline-flex">
+      {online ? "Bot online" : "Bot offline"}
+    </Badge>
   );
 }
 
-export function Topbar({ user, children }: { user: SessionUser; children?: ReactNode }) {
+export function Topbar({ user }: { user: SessionUser }) {
   return (
-    <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b border-line bg-bg/85 px-4 backdrop-blur md:px-8">
-      <div className="flex min-w-0 flex-1 items-center gap-4">{children}</div>
+    <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b border-border bg-bg/90 px-4 backdrop-blur-md md:px-6">
+      <Logo />
+      <div className="flex-1" />
       <BotStatus />
-      <span className="h-5 w-px bg-line" aria-hidden />
       <UserMenu user={user} />
     </header>
   );

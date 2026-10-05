@@ -39,3 +39,14 @@ export const requireGuild = cache(async (guildId: string) => {
     throw error;
   }
 });
+
+/** Core settings of a guild, deduplicated per request (layout and page both need them). */
+export const getSettings = cache((guildId: string, userId: string) => botApi.settings(guildId, userId));
+
+/** Like {@link requireGuild}, but sends guilds that are not set up yet to the setup wizard first. */
+export const requireConfiguredGuild = cache(async (guildId: string) => {
+  const { user, guild } = await requireGuild(guildId);
+  const settings = await getSettings(guild.id, user.id);
+  if (!settings.setupCompleted) redirect(`/servers/${guild.id}/setup`);
+  return { user, guild, settings };
+});

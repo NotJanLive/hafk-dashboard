@@ -1,16 +1,13 @@
 "use client";
 
-import { ArrowLeftRight, LayoutGrid, ScrollText, SlidersHorizontal } from "lucide-react";
+import { ChevronsUpDown, History, House, type LucideIcon, Settings, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ComponentType } from "react";
-import { Logo } from "@/components/brand/logo";
 import { GuildIcon } from "@/components/ui/guild-icon";
-import { Led, type LedState } from "@/components/ui/led";
 import { MODULES } from "@/lib/modules";
 import { cn } from "@/lib/utils";
 
-type NavItem = { href: string; label: string; icon: ComponentType<{ className?: string }>; led?: LedState };
+type NavItem = { href: string; label: string; icon: LucideIcon };
 
 export function Sidebar({
   guild,
@@ -21,73 +18,52 @@ export function Sidebar({
 }) {
   const pathname = usePathname();
   const base = `/servers/${guild.id}`;
-  const general: NavItem[] = [
-    { href: base, label: "Übersicht", icon: LayoutGrid },
-    {
-      href: `${base}/settings`,
-      label: "Einstellungen",
-      icon: SlidersHorizontal,
-      led: setupCompleted ? undefined : "warn",
-    },
-    { href: `${base}/audit-log`, label: "Audit-Log", icon: ScrollText },
-  ];
+  // Until the first setup is done, the wizard is the only reachable page.
+  const general: NavItem[] = setupCompleted
+    ? [
+        { href: base, label: "Übersicht", icon: House },
+        { href: `${base}/settings`, label: "Einstellungen", icon: Settings },
+        { href: `${base}/audit-log`, label: "Änderungsprotokoll", icon: History },
+      ]
+    : [{ href: `${base}/setup`, label: "Einrichtung", icon: Sparkles }];
   const isActive = (href: string) => (href === base ? pathname === base : pathname.startsWith(href));
 
   return (
     <>
-      <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-line bg-surface md:flex">
-        <div className="flex h-14 items-center border-b border-line px-5">
-          <Link href="/servers" aria-label="Zur Serverauswahl">
-            <Logo />
+      <aside className="sticky top-16 hidden h-[calc(100dvh-4rem)] w-[272px] shrink-0 flex-col border-r border-border bg-sidebar lg:flex">
+        <div className="p-4">
+          <Link
+            href="/servers"
+            className="flex items-center gap-3 rounded-xl bg-surface p-2.5 ring-1 ring-border transition-colors hover:bg-surface-2"
+            title="Server wechseln"
+          >
+            <GuildIcon name={guild.name} iconUrl={guild.iconUrl} size={36} />
+            <span className="min-w-0 flex-1 truncate text-sm font-bold">{guild.name}</span>
+            <ChevronsUpDown className="size-4 text-faint" />
           </Link>
         </div>
 
-        <Link
-          href="/servers"
-          className="group mx-3 mt-3 flex items-center gap-3 rounded-lg border border-line bg-surface-2 p-2.5 transition-colors hover:border-line-strong"
-        >
-          <GuildIcon name={guild.name} iconUrl={guild.iconUrl} size={32} />
-          <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-semibold">{guild.name}</span>
-            <span className="block font-mono text-[10.5px] text-faint">{guild.id}</span>
-          </span>
-          <ArrowLeftRight className="size-3.5 text-faint group-hover:text-text" />
-        </Link>
-
-        <nav className="mt-5 flex-1 overflow-y-auto px-3 pb-6" aria-label="Server-Navigation">
-          <p className="label px-2.5 pb-2">Allgemein</p>
-          <ul className="space-y-0.5">
+        <nav className="flex-1 overflow-y-auto px-4 pb-6" aria-label="Server-Navigation">
+          <ul className="space-y-1">
             {general.map((item) => (
               <li key={item.href}>
-                <Link
-                  href={item.href}
-                  aria-current={isActive(item.href) ? "page" : undefined}
-                  className={cn(
-                    "relative flex h-9 items-center gap-3 rounded-lg px-2.5 text-sm text-muted transition-colors hover:bg-surface-3 hover:text-text",
-                    isActive(item.href) &&
-                      "bg-surface-3 font-semibold text-text before:absolute before:top-2 before:bottom-2 before:-left-3 before:w-[3px] before:rounded-r before:bg-accent",
-                  )}
-                >
-                  <item.icon className="size-4" />
-                  <span className="flex-1">{item.label}</span>
-                  {item.led && <Led state={item.led} pulse={false} label="Setup offen" />}
-                </Link>
+                <NavLink item={item} active={isActive(item.href)} />
               </li>
             ))}
           </ul>
 
-          <p className="label mt-7 px-2.5 pb-2">Module</p>
-          <ul className="space-y-0.5">
+          <p className="mt-8 mb-2 px-3 text-xs font-bold tracking-wide text-faint uppercase">Module</p>
+          <ul className="space-y-1">
             {MODULES.map((module) => (
               <li key={module.id}>
                 <span
                   aria-disabled
-                  className="flex h-9 cursor-not-allowed items-center gap-3 rounded-lg px-2.5 text-sm text-faint"
                   title={module.description}
+                  className="flex h-10 cursor-not-allowed items-center gap-3 rounded-lg px-3 text-sm font-medium text-faint"
                 >
-                  <Led state="off" />
+                  <module.icon className="size-[18px]" />
                   <span className="flex-1 truncate">{module.name}</span>
-                  <span className="font-mono text-[10px] uppercase">bald</span>
+                  <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[11px] font-semibold">Bald</span>
                 </span>
               </li>
             ))}
@@ -95,9 +71,9 @@ export function Sidebar({
         </nav>
       </aside>
 
-      {/* Compact navigation for small screens. */}
+      {/* Small screens: horizontal navigation below the top bar. */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-20 flex border-t border-line bg-surface/95 backdrop-blur md:hidden"
+        className="sticky top-16 z-10 flex gap-1 overflow-x-auto border-b border-border bg-bg/95 px-4 py-2 backdrop-blur lg:hidden"
         aria-label="Server-Navigation"
       >
         {general.map((item) => (
@@ -106,8 +82,8 @@ export function Sidebar({
             href={item.href}
             aria-current={isActive(item.href) ? "page" : undefined}
             className={cn(
-              "flex h-14 flex-1 flex-col items-center justify-center gap-1 text-[11px] text-muted",
-              isActive(item.href) && "text-accent",
+              "flex h-9 shrink-0 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-muted",
+              isActive(item.href) && "bg-primary-soft text-text",
             )}
           >
             <item.icon className="size-4" />
@@ -116,5 +92,21 @@ export function Sidebar({
         ))}
       </nav>
     </>
+  );
+}
+
+function NavLink({ item, active }: { item: NavItem; active: boolean }) {
+  return (
+    <Link
+      href={item.href}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-semibold text-muted transition-colors hover:bg-surface-2 hover:text-text",
+        active && "bg-primary-soft text-text hover:bg-primary-soft",
+      )}
+    >
+      <item.icon className={cn("size-[18px]", active && "text-primary-hover")} />
+      {item.label}
+    </Link>
   );
 }

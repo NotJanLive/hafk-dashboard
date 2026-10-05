@@ -1,58 +1,74 @@
-import { ArrowUpRight, ServerOff } from "lucide-react";
+import { ArrowRight, Plus, ServerOff, Sparkles } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Logo } from "@/components/brand/logo";
+import Image from "next/image";
 import { Topbar } from "@/components/shell/topbar";
-import { Badge } from "@/components/ui/badge";
-import { buttonClasses } from "@/components/ui/button";
+import { ButtonLink, buttonClasses } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { GuildIcon } from "@/components/ui/guild-icon";
-import { Led } from "@/components/ui/led";
-import { PageHeader, Panel } from "@/components/ui/panel";
 import { botInviteUrl, fetchUserGuilds } from "@/lib/auth/discord";
 import { BotApiError, botApi } from "@/lib/bot-api/client";
-import type { Grant, GuildSummary } from "@/lib/bot-api/types";
+import type { GuildSummary } from "@/lib/bot-api/types";
 import { guildIconUrl } from "@/lib/discord/cdn";
 import { canManageGuild } from "@/lib/discord/permissions";
 import { requireUser } from "@/lib/dal";
 import { formatNumber } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Server" };
+export const metadata: Metadata = { title: "Server auswählen" };
 
-const GRANT_LABELS: Record<Grant, string> = {
-  OWNER: "Owner",
-  ADMINISTRATOR: "Admin",
-  MANAGE_SERVER: "Verwalter",
-  DASHBOARD_ROLE: "Dashboard-Rolle",
+type ServerEntry = {
+  id: string;
+  name: string;
+  iconUrl: string | null;
+  subtitle: string;
+  state: "ready" | "setup" | "invite";
 };
 
-function GuildTile({ guild }: { guild: GuildSummary }) {
+function ServerCard({ server }: { server: ServerEntry }) {
+  const action =
+    server.state === "invite" ? (
+      <a href={botInviteUrl(server.id)} className={buttonClasses({ variant: "secondary" }, "w-full")}>
+        <Plus />
+        Bot hinzufügen
+      </a>
+    ) : server.state === "setup" ? (
+      <ButtonLink href={`/servers/${server.id}/setup`} className="w-full">
+        <Sparkles />
+        Einrichten
+      </ButtonLink>
+    ) : (
+      <ButtonLink href={`/servers/${server.id}`} className="w-full">
+        Dashboard öffnen
+        <ArrowRight />
+      </ButtonLink>
+    );
+
   return (
-    <Link
-      href={`/servers/${guild.id}`}
-      className="group flex h-[132px] flex-col justify-between rounded-xl border border-line bg-surface p-4 transition-colors hover:border-line-strong hover:bg-surface-2"
-    >
-      <div className="flex items-start gap-3">
-        <GuildIcon name={guild.name} iconUrl={guild.iconUrl} size={44} />
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold">{guild.name}</p>
-          <p className="mt-0.5 font-mono text-[11.5px] text-faint">{formatNumber(guild.memberCount)} Mitglieder</p>
-        </div>
-        <ArrowUpRight className="size-4 text-faint transition-colors group-hover:text-accent" />
+    <Card className="overflow-hidden">
+      <div className="relative h-24 overflow-hidden bg-gradient-to-br from-surface-3 to-surface-2">
+        {server.iconUrl && (
+          <Image
+            src={server.iconUrl}
+            alt=""
+            fill
+            sizes="360px"
+            className="scale-150 object-cover opacity-40 blur-2xl"
+          />
+        )}
       </div>
-      <div className="flex items-center justify-between border-t border-line pt-3">
-        <span className="flex items-center gap-2 text-[12.5px] text-muted">
-          <Led state={guild.setupCompleted ? "on" : "warn"} pulse={false} />
-          {guild.setupCompleted ? "Eingerichtet" : "Setup offen"}
-        </span>
-        <Badge>{GRANT_LABELS[guild.grant]}</Badge>
+      <div className="-mt-10 flex flex-col items-center px-5 pb-5 text-center">
+        <GuildIcon name={server.name} iconUrl={server.iconUrl} size={80} className="relative ring-4 ring-surface" />
+        <h2 className="mt-3 w-full truncate text-base font-bold">{server.name}</h2>
+        <p className="mt-0.5 mb-5 text-sm text-muted">{server.subtitle}</p>
+        {action}
       </div>
-    </Link>
+    </Card>
   );
 }
 
 export default async function ServersPage() {
   const user = await requireUser();
   const discordGuilds = await fetchUserGuilds(user.id, user.accessToken);
+
   let manageable: GuildSummary[] | null = null;
   let botError: string | null = null;
   try {
@@ -64,70 +80,64 @@ export default async function ServersPage() {
     botError =
       error instanceof BotApiError && error.status === 401
         ? "Das Dashboard darf nicht mit dem Bot sprechen: BOT_API_TOKEN (Dashboard) und API_TOKEN (Bot) stimmen nicht überein."
-        : "Der Bot ist gerade nicht erreichbar, daher kann die Serverliste nicht geladen werden.";
+        : "Der Bot ist gerade nicht erreichbar. Versuche es in einem Moment erneut.";
   }
 
   // Without the bot's answer we cannot tell where it is already installed, so offer no invites.
-  const manageableIds = new Set(manageable?.map((guild) => guild.id));
-  const invitable =
-    manageable === null
-      ? []
-      : discordGuilds.filter((guild) => canManageGuild(guild.permissions, guild.owner) && !manageableIds.has(guild.id));
+  const servers: ServerEntry[] = [];
+  if (manageable) {
+    const manageableIds = new Set(manageable.map((guild) => guild.id));
+    for (const guild of manageable) {
+      servers.push({
+        id: guild.id,
+        name: guild.name,
+        iconUrl: guild.iconUrl,
+        subtitle: `${formatNumber(guild.memberCount)} Mitglieder`,
+        state: guild.setupCompleted ? "ready" : "setup",
+      });
+    }
+    for (const guild of discordGuilds) {
+      if (canManageGuild(guild.permissions, guild.owner) && !manageableIds.has(guild.id)) {
+        servers.push({
+          id: guild.id,
+          name: guild.name,
+          iconUrl: guildIconUrl(guild.id, guild.icon, 128),
+          subtitle: "Bot noch nicht hinzugefügt",
+          state: "invite",
+        });
+      }
+    }
+  }
 
   return (
     <div className="min-h-dvh">
-      <Topbar user={user}>
-        <Logo />
-      </Topbar>
-
-      <main className="canvas min-h-[calc(100dvh-3.5rem)] px-4 py-8 md:px-8 md:py-10">
-        <div className="mx-auto max-w-5xl">
-          <PageHeader label="Server" title="Wähle einen Server" />
-
-          {manageable === null ? (
-            <Panel>
-              <div className="flex items-center gap-3 text-sm text-muted">
-                <ServerOff className="size-5 text-danger" />
-                {botError}
-              </div>
-            </Panel>
-          ) : manageable.length === 0 ? (
-            <Panel>
-              <p className="text-sm text-muted">
-                Auf keinem deiner Server hast du Zugriff auf den Bot. Du brauchst Admin-Rechte, „Server verwalten“ oder
-                eine Dashboard-Rolle.
-              </p>
-            </Panel>
-          ) : (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {manageable.map((guild) => (
-                <GuildTile key={guild.id} guild={guild} />
-              ))}
-            </div>
-          )}
-
-          {invitable.length > 0 && (
-            <Panel title="Bot hinzufügen" className="mt-10" bodyClassName="p-0">
-              <ul className="divide-y divide-line">
-                {invitable.map((guild) => (
-                  <li key={guild.id} className="flex items-center gap-3 px-5 py-3">
-                    <GuildIcon name={guild.name} iconUrl={guildIconUrl(guild.id, guild.icon, 64)} size={32} />
-                    <span className="min-w-0 flex-1 truncate text-sm font-medium">{guild.name}</span>
-                    <a
-                      href={botInviteUrl(guild.id)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className={buttonClasses({ variant: "secondary", size: "sm" })}
-                    >
-                      Einladen
-                      <ArrowUpRight />
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </Panel>
-          )}
+      <Topbar user={user} />
+      <main className="mx-auto max-w-6xl px-4 py-10 md:px-6 md:py-14">
+        <div className="mb-10 text-center">
+          <h1 className="text-3xl font-extrabold tracking-tight md:text-4xl">Wähle einen Server</h1>
+          <p className="mt-3 text-[15px] text-muted">
+            Hier siehst du alle Server, auf denen du Admin bist oder eine Dashboard-Rolle hast.
+          </p>
         </div>
+
+        {botError ? (
+          <Card className="mx-auto flex max-w-xl items-center gap-4 p-5">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-danger-soft text-danger">
+              <ServerOff className="size-5" />
+            </span>
+            <p className="text-sm text-muted">{botError}</p>
+          </Card>
+        ) : servers.length === 0 ? (
+          <Card className="mx-auto max-w-xl p-6 text-center text-sm text-muted">
+            Du bist auf keinem Server Admin. Bitte einen Admin, dir eine Dashboard-Rolle zu geben.
+          </Card>
+        ) : (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {servers.map((server) => (
+              <ServerCard key={server.id} server={server} />
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );
