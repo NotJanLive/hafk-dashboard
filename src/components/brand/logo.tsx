@@ -14,7 +14,7 @@ export function LogoImage({
   return (
     <Image
       src="/brand/logo.webp"
-      alt="HAF Kooperation"
+      alt="HAFK-Bot"
       width={size}
       height={size}
       priority={priority}
@@ -29,7 +29,7 @@ export function Logo({ className }: { className?: string }) {
     <Link href="/servers" className={cn("flex items-center gap-3", className)}>
       <LogoImage size={38} priority />
       <span className="leading-tight">
-        <span className="block text-[15px] font-bold tracking-tight">HAF Kooperation</span>
+        <span className="block text-[15px] font-bold tracking-tight">HAFK-Bot</span>
         <span className="block text-xs font-medium text-faint">Dashboard</span>
       </span>
     </Link>

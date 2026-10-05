@@ -21,14 +21,14 @@ export type SessionData = {
 };
 
 function sessionOptions(): SessionOptions {
-  const { SESSION_SECRET, APP_URL } = env();
+  const { SESSION_SECRET, DASHBOARD_URL } = env();
   return {
     cookieName: SESSION_COOKIE,
     password: SESSION_SECRET,
     ttl: SESSION_TTL_SECONDS,
     cookieOptions: {
       httpOnly: true,
-      secure: APP_URL.startsWith("https://"),
+      secure: DASHBOARD_URL.startsWith("https://"),
       sameSite: "lax",
       path: "/",
     },

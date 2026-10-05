@@ -5,7 +5,7 @@ import { Topbar } from "@/components/shell/topbar";
 import { ButtonLink, buttonClasses } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { GuildIcon } from "@/components/ui/guild-icon";
-import { botInviteUrl, fetchUserGuilds } from "@/lib/auth/discord";
+import { botInviteUrl, DiscordApiError, type DiscordPartialGuild, fetchUserGuilds } from "@/lib/auth/discord";
 import { BotApiError, botApi } from "@/lib/bot-api/client";
 import type { GuildSummary } from "@/lib/bot-api/types";
 import { guildIconUrl } from "@/lib/discord/cdn";
@@ -65,22 +65,31 @@ function ServerCard({ server }: { server: ServerEntry }) {
   );
 }
 
+function describeLoadError(error: unknown) {
+  if (error instanceof DiscordApiError) {
+    return error.rateLimited
+      ? "Discord bremst gerade zu viele Anfragen aus. Lade die Seite in ein paar Sekunden neu."
+      : "Deine Serverliste konnte nicht von Discord geladen werden. Melde dich bei Bedarf neu an.";
+  }
+  if (error instanceof BotApiError && error.status === 401) {
+    return "Das Dashboard darf nicht mit dem Bot sprechen: BOT_API_TOKEN muss in Bot und Dashboard identisch sein.";
+  }
+  return "Der Bot ist gerade nicht erreichbar. Versuche es in einem Moment erneut.";
+}
+
 export default async function ServersPage() {
   const user = await requireUser();
-  const discordGuilds = await fetchUserGuilds(user.id, user.accessToken);
-
+  let discordGuilds: DiscordPartialGuild[] = [];
   let manageable: GuildSummary[] | null = null;
-  let botError: string | null = null;
+  let loadError: string | null = null;
   try {
+    discordGuilds = await fetchUserGuilds(user.id, user.accessToken);
     manageable = await botApi.userGuilds(
       user.id,
       discordGuilds.map((guild) => guild.id),
     );
   } catch (error) {
-    botError =
-      error instanceof BotApiError && error.status === 401
-        ? "Das Dashboard darf nicht mit dem Bot sprechen: BOT_API_TOKEN (Dashboard) und API_TOKEN (Bot) stimmen nicht überein."
-        : "Der Bot ist gerade nicht erreichbar. Versuche es in einem Moment erneut.";
+    loadError = describeLoadError(error);
   }
 
   // Without the bot's answer we cannot tell where it is already installed, so offer no invites.
@@ -120,12 +129,12 @@ export default async function ServersPage() {
           </p>
         </div>
 
-        {botError ? (
+        {loadError ? (
           <Card className="mx-auto flex max-w-xl items-center gap-4 p-5">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-danger-soft text-danger">
               <ServerOff className="size-5" />
             </span>
-            <p className="text-sm text-muted">{botError}</p>
+            <p className="text-sm text-muted">{loadError}</p>
           </Card>
         ) : servers.length === 0 ? (
           <Card className="mx-auto max-w-xl p-6 text-center text-sm text-muted">

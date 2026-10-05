@@ -9,8 +9,8 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: { default: "HAF Dashboard", template: "%s · HAF Dashboard" },
-  description: "Dashboard für den Discord-Bot der HAF Kooperation",
+  title: { default: "HAFK-Bot Dashboard", template: "%s · HAFK-Bot" },
+  description: "Dashboard für den HAFK-Bot",
   robots: { index: false, follow: false },
 };
 
