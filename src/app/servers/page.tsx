@@ -9,7 +9,7 @@ import { GuildIcon } from "@/components/ui/guild-icon";
 import { Led } from "@/components/ui/led";
 import { PageHeader, Panel } from "@/components/ui/panel";
 import { botInviteUrl, fetchUserGuilds } from "@/lib/auth/discord";
-import { botApi } from "@/lib/bot-api/client";
+import { BotApiError, botApi } from "@/lib/bot-api/client";
 import type { Grant, GuildSummary } from "@/lib/bot-api/types";
 import { guildIconUrl } from "@/lib/discord/cdn";
 import { canManageGuild } from "@/lib/discord/permissions";
@@ -53,17 +53,26 @@ function GuildTile({ guild }: { guild: GuildSummary }) {
 export default async function ServersPage() {
   const user = await requireUser();
   const discordGuilds = await fetchUserGuilds(user.id, user.accessToken);
-  const manageable = await botApi
-    .userGuilds(
+  let manageable: GuildSummary[] | null = null;
+  let botError: string | null = null;
+  try {
+    manageable = await botApi.userGuilds(
       user.id,
       discordGuilds.map((guild) => guild.id),
-    )
-    .catch(() => null);
+    );
+  } catch (error) {
+    botError =
+      error instanceof BotApiError && error.status === 401
+        ? "Das Dashboard darf nicht mit dem Bot sprechen: BOT_API_TOKEN (Dashboard) und API_TOKEN (Bot) stimmen nicht überein."
+        : "Der Bot ist gerade nicht erreichbar, daher kann die Serverliste nicht geladen werden.";
+  }
 
+  // Without the bot's answer we cannot tell where it is already installed, so offer no invites.
   const manageableIds = new Set(manageable?.map((guild) => guild.id));
-  const invitable = discordGuilds.filter(
-    (guild) => canManageGuild(guild.permissions, guild.owner) && !manageableIds.has(guild.id),
-  );
+  const invitable =
+    manageable === null
+      ? []
+      : discordGuilds.filter((guild) => canManageGuild(guild.permissions, guild.owner) && !manageableIds.has(guild.id));
 
   return (
     <div className="min-h-dvh">
@@ -79,7 +88,7 @@ export default async function ServersPage() {
             <Panel>
               <div className="flex items-center gap-3 text-sm text-muted">
                 <ServerOff className="size-5 text-danger" />
-                Der Bot ist gerade nicht erreichbar, daher kann die Serverliste nicht geladen werden.
+                {botError}
               </div>
             </Panel>
           ) : manageable.length === 0 ? (
