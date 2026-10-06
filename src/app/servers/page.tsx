@@ -72,7 +72,7 @@ function describeLoadError(error: unknown) {
       : "Deine Serverliste konnte nicht von Discord geladen werden. Melde dich bei Bedarf neu an.";
   }
   if (error instanceof BotApiError && error.status === 401) {
-    return "Das Dashboard darf nicht mit dem Bot sprechen: BOT_API_TOKEN muss in Bot und Dashboard identisch sein.";
+    return "Das Dashboard darf nicht mit dem Bot sprechen: SHARED_SECRET muss in Bot und Dashboard identisch sein.";
   }
   return "Der Bot ist gerade nicht erreichbar. Versuche es in einem Moment erneut.";
 }
@@ -92,7 +92,6 @@ export default async function ServersPage() {
     loadError = describeLoadError(error);
   }
 
-  // Without the bot's answer we cannot tell where it is already installed, so offer no invites.
   const servers: ServerEntry[] = [];
   if (manageable) {
     const manageableIds = new Set(manageable.map((guild) => guild.id));

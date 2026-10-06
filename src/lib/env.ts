@@ -7,7 +7,7 @@ const schema = z.object({
   DISCORD_CLIENT_ID: z.string().regex(/^\d+$/, "DISCORD_CLIENT_ID must be the application ID"),
   DISCORD_CLIENT_SECRET: z.string().min(1),
   BOT_API_URL: z.url().transform((url) => url.replace(/\/$/, "")),
-  BOT_API_TOKEN: z.string().min(32, "BOT_API_TOKEN must be identical in bot and dashboard"),
+  SHARED_SECRET: z.string().min(32, "SHARED_SECRET must be identical in bot and dashboard"),
   BOT_INVITE_PERMISSIONS: z.string().regex(/^\d+$/).default("268823632"),
 });
 
@@ -15,7 +15,6 @@ export type Env = z.infer<typeof schema>;
 
 let cached: Env | undefined;
 
-/** Validated server environment. Parsed lazily so `next build` works without secrets. */
 export function env(): Env {
   if (!cached) {
     const result = schema.safeParse(process.env);

@@ -70,7 +70,6 @@ export function SetupWizard({
       <form action={formAction}>
         <input type="hidden" name="guildId" value={guild.id} />
         <Card className="overflow-visible">
-          {/* All steps stay mounted so the role selection survives navigating back and forth. */}
           <section hidden={step !== 0} className="p-6 md:p-8">
             <h2 className="text-xl font-bold">Willkommen! 👋</h2>
             <p className="mt-2 text-[15px] leading-relaxed text-muted">
@@ -156,7 +155,6 @@ export function SetupWizard({
               <ArrowLeft />
               Zurück
             </Button>
-            {/* Distinct keys: reusing one element and flipping type to "submit" mid-click would submit the form. */}
             {step < STEPS.length - 1 ? (
               <Button key="next" type="button" onClick={() => setStep((value) => value + 1)}>
                 Weiter

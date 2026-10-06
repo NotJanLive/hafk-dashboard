@@ -29,7 +29,6 @@ export function formatNumber(value: number) {
   return value.toLocaleString("de-DE");
 }
 
-/** Only allow same-origin relative paths as post-login targets (prevents open redirects). */
 export function safeReturnTo(value: string | null | undefined, fallback = "/servers") {
   if (!value || !value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) return fallback;
   return value;

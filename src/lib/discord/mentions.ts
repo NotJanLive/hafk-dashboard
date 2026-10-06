@@ -6,7 +6,6 @@ export type MentionToken =
 
 const MENTION = /<(#|@&|@!?)(\d{17,20})>/g;
 
-/** Splits Discord markup like "Log-Kanal auf <#123> gesetzt" into renderable tokens. */
 export function parseMentions(text: string): MentionToken[] {
   const tokens: MentionToken[] = [];
   let last = 0;

@@ -19,7 +19,6 @@ export function userAvatarUrl(userId: string, avatar: string | null, size = 128)
   return `${CDN}/avatars/${userId}/${avatar}.${ext}?size=${size}`;
 }
 
-/** Two-letter fallback for guilds without an icon, like Discord does. */
 export function initials(name: string) {
   return name
     .split(/\s+/)
