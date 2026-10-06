@@ -4,7 +4,6 @@ import { AuditList } from "@/components/audit/audit-list";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { GuildIcon } from "@/components/ui/guild-icon";
-import { Switch } from "@/components/ui/switch";
 import { botApi } from "@/lib/bot-api/client";
 import { missingBotPermissions } from "@/lib/discord/permissions";
 import { requireConfiguredGuild } from "@/lib/dal";
@@ -60,16 +59,26 @@ export default async function OverviewPage(props: PageProps<"/servers/[guildId]"
         </div>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {MODULES.map((module) => (
-            <Card key={module.id} className="flex flex-col p-5">
+            <Card
+              key={module.id}
+              className="relative flex flex-col p-5 transition-colors has-[a]:hover:border-border-strong"
+            >
               <div className="flex items-start justify-between">
                 <span className={`flex size-11 items-center justify-center rounded-xl ${module.tint}`}>
                   <module.icon className="size-5" />
                 </span>
-                <Switch checked={false} disabled={!module.available} label={`${module.name} aktivieren`} />
+                {module.available && <Badge tone="success">Aktiv</Badge>}
               </div>
               <h3 className="mt-4 font-bold">{module.name}</h3>
               <p className="mt-1 flex-1 text-sm leading-relaxed text-muted">{module.description}</p>
-              {!module.available && (
+              {module.available ? (
+                <Link
+                  href={`/servers/${guild.id}/${module.id}`}
+                  className="mt-4 text-sm font-semibold text-primary-hover after:absolute after:inset-0 hover:underline"
+                >
+                  Öffnen →
+                </Link>
+              ) : (
                 <div className="mt-4">
                   <Badge>Bald verfügbar</Badge>
                 </div>

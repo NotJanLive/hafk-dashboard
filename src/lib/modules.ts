@@ -11,16 +11,11 @@ import {
   Vote,
 } from "lucide-react";
 
-/**
- * Catalog of bot modules shown in the navigation and on the overview.
- * A module becomes `available` once its bot and dashboard parts are merged.
- */
 export type ModuleInfo = {
   id: string;
   name: string;
   description: string;
   icon: LucideIcon;
-  /** Tailwind classes for the icon tile, so modules are easy to tell apart at a glance. */
   tint: string;
   available: boolean;
 };
@@ -32,7 +27,7 @@ export const MODULES: ModuleInfo[] = [
     description: "Schöne eingebettete Nachrichten gestalten und senden",
     icon: MessageSquareText,
     tint: "bg-sky-500/15 text-sky-400",
-    available: false,
+    available: true,
   },
   {
     id: "reaction-roles",
@@ -40,7 +35,7 @@ export const MODULES: ModuleInfo[] = [
     description: "Mitglieder vergeben sich Rollen per Button, Menü oder Reaktion",
     icon: SmilePlus,
     tint: "bg-amber-500/15 text-amber-400",
-    available: false,
+    available: true,
   },
   {
     id: "tickets",

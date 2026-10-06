@@ -52,7 +52,7 @@ Damit auch andere Admins einladen können, muss im Developer Portal **Public Bot
 ## Lokal starten
 
 1. Den Bot lokal starten (siehe Bot-README), sodass die API auf `http://127.0.0.1:8081` läuft.
-2. `.env.example` nach `.env.local` kopieren und ausfüllen. `BOT_API_TOKEN` muss in beiden `.env`-Dateien denselben Wert haben.
+2. `.env.example` nach `.env.local` kopieren und ausfüllen. `SHARED_SECRET` muss in beiden `.env`-Dateien denselben Wert haben.
 3. Im Discord Developer Portal unter OAuth2 → Redirects `http://localhost:3000/api/auth/callback/discord` und
    `http://localhost:3000/api/invite/callback` eintragen.
 4. Danach:

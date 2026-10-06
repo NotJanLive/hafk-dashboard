@@ -1,9 +1,5 @@
 @import "tailwindcss";
 
-/*
- * HAF dashboard theme: neutral blue-grey surfaces, one confident primary blue, semantic colors
- * only where they carry meaning. The logo's rainbow ring is used as a single brand accent.
- */
 :root {
   --bg: #0d0f14;
   --sidebar: #11131a;
@@ -51,7 +47,6 @@
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Base rules live in a layer so Tailwind utilities can override them. */
 @layer base {
   body {
     background: var(--bg);
@@ -69,7 +64,6 @@
   }
 }
 
-/* Soft rainbow glow echoing the logo ring, used once on the login screen. */
 @utility brand-glow {
   background: var(--brand-ring);
   filter: blur(70px);

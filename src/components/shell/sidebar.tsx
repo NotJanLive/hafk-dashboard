@@ -18,7 +18,6 @@ export function Sidebar({
 }) {
   const pathname = usePathname();
   const base = `/servers/${guild.id}`;
-  // Until the first setup is done, the wizard is the only reachable page.
   const general: NavItem[] = setupCompleted
     ? [
         { href: base, label: "Übersicht", icon: House },
@@ -56,22 +55,30 @@ export function Sidebar({
           <ul className="space-y-1">
             {MODULES.map((module) => (
               <li key={module.id}>
-                <span
-                  aria-disabled
-                  title={module.description}
-                  className="flex h-10 cursor-not-allowed items-center gap-3 rounded-lg px-3 text-sm font-medium text-faint"
-                >
-                  <module.icon className="size-[18px]" />
-                  <span className="flex-1 truncate">{module.name}</span>
-                  <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[11px] font-semibold">Bald</span>
-                </span>
+                {module.available && setupCompleted ? (
+                  <NavLink
+                    item={{ href: `${base}/${module.id}`, label: module.name, icon: module.icon }}
+                    active={pathname.startsWith(`${base}/${module.id}`)}
+                  />
+                ) : (
+                  <span
+                    aria-disabled
+                    title={module.description}
+                    className="flex h-10 cursor-not-allowed items-center gap-3 rounded-lg px-3 text-sm font-medium text-faint"
+                  >
+                    <module.icon className="size-[18px]" />
+                    <span className="flex-1 truncate">{module.name}</span>
+                    <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[11px] font-semibold">
+                      {module.available ? "Setup" : "Bald"}
+                    </span>
+                  </span>
+                )}
               </li>
             ))}
           </ul>
         </nav>
       </aside>
 
-      {/* Small screens: horizontal navigation below the top bar. */}
       <nav
         className="sticky top-16 z-10 flex gap-1 overflow-x-auto border-b border-border bg-bg/95 px-4 py-2 backdrop-blur lg:hidden"
         aria-label="Server-Navigation"

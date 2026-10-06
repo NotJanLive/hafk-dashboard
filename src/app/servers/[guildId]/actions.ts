@@ -24,7 +24,6 @@ function parse(formData: FormData) {
   });
 }
 
-/** Server actions are public endpoints: every call authenticates and authorizes again. */
 async function save(guildId: string, dashboardRoleIds: string[], setupCompleted: boolean): Promise<FormState | null> {
   const { user } = await requireGuild(guildId);
   try {

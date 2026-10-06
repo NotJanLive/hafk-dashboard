@@ -25,7 +25,6 @@ export function SettingsForm({ guildId, settings, roles }: { guildId: string; se
           description="Admins und Mitglieder mit „Server verwalten“ haben immer Zugriff. Diese Rollen dürfen das Dashboard zusätzlich nutzen."
         />
         <CardBody>
-          {/* React resets forms to their initial values after an action; remount on new saved state. */}
           <RolePicker
             key={settings.dashboardRoleIds.join(",")}
             name="dashboardRoleIds"

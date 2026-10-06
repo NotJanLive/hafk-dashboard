@@ -2,7 +2,6 @@ import type { Channel, Role } from "@/lib/bot-api/types";
 import { roleColor } from "@/lib/discord/cdn";
 import { parseMentions } from "@/lib/discord/mentions";
 
-/** Renders Discord mention markup with names resolved from the guild. */
 export function MentionText({ text, channels, roles }: { text: string; channels: Channel[]; roles: Role[] }) {
   return (
     <>

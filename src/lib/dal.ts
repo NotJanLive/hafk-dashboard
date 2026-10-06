@@ -5,11 +5,6 @@ import { getSession } from "@/lib/auth/session";
 import { BotApiError, botApi } from "@/lib/bot-api/client";
 import { isSnowflake } from "@/lib/discord/cdn";
 
-/**
- * Data access layer: every page and server action authenticates and authorizes here, close to
- * the data. The proxy only performs an optimistic cookie check.
- */
-
 export const getCurrentUser = cache(async () => {
   const session = await getSession();
   if (!session.user || !session.accessToken || (session.accessTokenExpiresAt ?? 0) < Date.now()) {
@@ -26,7 +21,6 @@ export const requireUser = cache(async (): Promise<CurrentUser> => {
   return user;
 });
 
-/** Resolves the guild and verifies through the bot that the user may manage it. */
 export const requireGuild = cache(async (guildId: string) => {
   if (!isSnowflake(guildId)) notFound();
   const user = await requireUser();
@@ -34,16 +28,13 @@ export const requireGuild = cache(async (guildId: string) => {
     const guild = await botApi.guild(guildId, user.id);
     return { user, guild };
   } catch (error) {
-    // Do not reveal whether the guild exists when the user has no access.
     if (error instanceof BotApiError && (error.status === 403 || error.status === 404)) notFound();
     throw error;
   }
 });
 
-/** Core settings of a guild, deduplicated per request (layout and page both need them). */
 export const getSettings = cache((guildId: string, userId: string) => botApi.settings(guildId, userId));
 
-/** Like {@link requireGuild}, but sends guilds that are not set up yet to the setup wizard first. */
 export const requireConfiguredGuild = cache(async (guildId: string) => {
   const { user, guild } = await requireGuild(guildId);
   const settings = await getSettings(guild.id, user.id);
