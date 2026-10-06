@@ -15,7 +15,6 @@ export type SessionUser = {
 
 export type SessionData = {
   user?: SessionUser;
-  /** Discord OAuth token, only used server-side to list the user's guilds. */
   accessToken?: string;
   accessTokenExpiresAt?: number;
 };
@@ -35,7 +34,6 @@ function sessionOptions(): SessionOptions {
   };
 }
 
-/** Encrypted, stateless session cookie. Mutations (save/destroy) only work in route handlers and server actions. */
 export async function getSession() {
   return getIronSession<SessionData>(await cookies(), sessionOptions());
 }

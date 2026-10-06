@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { CopyButton } from "@/components/ui/copy-button";
 
 export default function ErrorPage({ error, retry }: { error: Error & { digest?: string }; retry: () => void }) {
   useEffect(() => {
@@ -15,7 +16,12 @@ export default function ErrorPage({ error, retry }: { error: Error & { digest?: 
         <p className="mt-2 text-sm text-muted">
           Möglicherweise ist der Bot gerade nicht erreichbar. Versuche es in einem Moment erneut.
         </p>
-        {error.digest && <p className="mt-3 text-xs text-faint">Fehler-ID: {error.digest}</p>}
+        {error.digest && (
+          <p className="mt-3 inline-flex items-center gap-1 text-xs text-faint">
+            Fehler-ID: <span className="font-mono">{error.digest}</span>
+            <CopyButton value={error.digest} className="size-7" />
+          </p>
+        )}
         <Button className="mt-6" onClick={() => retry()}>
           Erneut versuchen
         </Button>

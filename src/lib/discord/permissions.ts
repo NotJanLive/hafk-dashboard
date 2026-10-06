@@ -1,17 +1,12 @@
 const ADMINISTRATOR = 1n << 3n;
 const MANAGE_GUILD = 1n << 5n;
 
-/** Whether a user may invite the bot, based on the OAuth guild permission bitfield. */
 export function canManageGuild(permissions: string, owner: boolean) {
   if (owner) return true;
   const bits = BigInt(permissions);
   return (bits & ADMINISTRATOR) !== 0n || (bits & MANAGE_GUILD) !== 0n;
 }
 
-/**
- * Permissions the bot needs, keyed by their JDA enum name as sent by the bot API.
- * Must match the invite permission integer (268823632).
- */
 export const REQUIRED_BOT_PERMISSIONS: Record<string, string> = {
   VIEW_CHANNEL: "Kanäle ansehen",
   MESSAGE_SEND: "Nachrichten senden",

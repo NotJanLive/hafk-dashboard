@@ -14,7 +14,6 @@ export async function GET(request: NextRequest) {
   const returnTo = safeReturnTo(request.nextUrl.searchParams.get("returnTo"));
 
   const url = discordOAuth().createAuthorizationURL(state, codeVerifier, DISCORD_SCOPES);
-  // Skip the consent screen for users who already authorized the app.
   url.searchParams.set("prompt", "none");
 
   (await cookies()).set(OAUTH_COOKIE, JSON.stringify({ state, codeVerifier, returnTo }), {

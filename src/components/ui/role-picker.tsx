@@ -6,10 +6,6 @@ import type { Role } from "@/lib/bot-api/types";
 import { roleColor } from "@/lib/discord/cdn";
 import { cn } from "@/lib/utils";
 
-/**
- * Multi-select for roles. Selected roles render as chips; the list opens below with search.
- * Values are submitted as repeated hidden inputs, so it works with plain form actions.
- */
 export function RolePicker({
   name,
   roles,
@@ -30,7 +26,6 @@ export function RolePicker({
   const listId = useId();
 
   const byId = useMemo(() => new Map(roles.map((role) => [role.id, role])), [roles]);
-  // Integration roles (bots, boosts) cannot be assigned to members, so they are not offered.
   const assignable = roles.filter((role) => !role.managed);
   const filtered = assignable.filter((role) => role.name.toLowerCase().includes(query.trim().toLowerCase()));
 
