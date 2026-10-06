@@ -5,6 +5,8 @@ export type BotInfo = {
   username: string;
   avatarUrl: string;
   guildIds: string[];
+  publicBot: boolean;
+  inviterIds: string[];
 };
 
 export type Health = {

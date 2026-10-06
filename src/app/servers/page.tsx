@@ -1,4 +1,4 @@
-import { ArrowRight, Plus, ServerOff, Sparkles } from "lucide-react";
+import { ArrowRight, Lock, Plus, ServerOff, Sparkles } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Topbar } from "@/components/shell/topbar";
@@ -20,12 +20,19 @@ type ServerEntry = {
   name: string;
   iconUrl: string | null;
   subtitle: string;
-  state: "ready" | "setup" | "invite";
+  state: "ready" | "setup" | "invite" | "locked";
 };
 
 function ServerCard({ server }: { server: ServerEntry }) {
   const action =
-    server.state === "invite" ? (
+    server.state === "locked" ? (
+      <div className="flex w-full items-start gap-2.5 rounded-[10px] bg-surface-2 px-3.5 py-3 text-left text-[13px] leading-relaxed text-muted">
+        <Lock className="mt-0.5 size-4 shrink-0 text-faint" />
+        <span>
+          Der Bot ist nicht öffentlich und kann hier nicht hinzugefügt werden. Wende dich an den Betreiber des Bots.
+        </span>
+      </div>
+    ) : server.state === "invite" ? (
       <a href={botInviteUrl(server.id)} className={buttonClasses({ variant: "secondary" }, "w-full")}>
         <Plus />
         Bot hinzufügen
@@ -82,12 +89,18 @@ export default async function ServersPage() {
   let discordGuilds: DiscordPartialGuild[] = [];
   let manageable: GuildSummary[] | null = null;
   let loadError: string | null = null;
+  let canInvite = true;
   try {
     discordGuilds = await fetchUserGuilds(user.id, user.accessToken);
-    manageable = await botApi.userGuilds(
-      user.id,
-      discordGuilds.map((guild) => guild.id),
-    );
+    const [guilds, bot] = await Promise.all([
+      botApi.userGuilds(
+        user.id,
+        discordGuilds.map((guild) => guild.id),
+      ),
+      botApi.bot().catch(() => null),
+    ]);
+    manageable = guilds;
+    canInvite = !bot || bot.publicBot || bot.inviterIds.includes(user.id);
   } catch (error) {
     loadError = describeLoadError(error);
   }
@@ -111,7 +124,7 @@ export default async function ServersPage() {
           name: guild.name,
           iconUrl: guildIconUrl(guild.id, guild.icon, 128),
           subtitle: "Bot noch nicht hinzugefügt",
-          state: "invite",
+          state: canInvite ? "invite" : "locked",
         });
       }
     }
