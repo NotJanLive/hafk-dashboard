@@ -40,7 +40,6 @@ export default async function LoginPage(props: PageProps<"/">) {
           </p>
         )}
 
-        {/* Plain link: the route handler starts the OAuth flow with a server-side redirect. */}
         <a
           href="/api/auth/login"
           className="mt-8 flex h-12 w-full items-center justify-center gap-3 rounded-xl bg-[#5865f2] text-[15px] font-bold text-white shadow-lg shadow-[#5865f2]/25 transition-colors hover:bg-[#4752c4]"

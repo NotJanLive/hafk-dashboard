@@ -23,7 +23,6 @@ export function LogoImage({
   );
 }
 
-/** Logo with wordmark, links to the server picker. */
 export function Logo({ className }: { className?: string }) {
   return (
     <Link href="/servers" className={cn("flex items-center gap-3", className)}>

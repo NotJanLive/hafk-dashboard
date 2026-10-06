@@ -5,7 +5,6 @@ import type { SessionUser } from "@/lib/auth/session";
 
 const DISCORD_API = "https://discord.com/api/v10";
 
-/** Least privilege: identity plus the guild list, nothing else. */
 export const DISCORD_SCOPES = ["identify", "guilds"];
 
 export function discordOAuth() {
@@ -18,14 +17,12 @@ export type DiscordPartialGuild = {
   name: string;
   icon: string | null;
   owner: boolean;
-  /** Permission bitfield as decimal string. */
   permissions: string;
 };
 
 export class DiscordApiError extends Error {
   constructor(
     readonly status: number,
-    /** Only set for rate limits (429): how long Discord asks us to wait. */
     readonly retryAfterMs: number | null,
     message: string,
   ) {
@@ -65,17 +62,14 @@ export async function fetchDiscordUser(accessToken: string): Promise<SessionUser
 }
 
 const GUILD_CACHE_TTL_MS = 2 * 60_000;
-/** Rate limits up to this long are waited out once instead of failing the page. */
 const MAX_RATE_LIMIT_WAIT_MS = 3_000;
 
 type GuildCacheEntry = {
   fetchedAt: number;
   guilds?: DiscordPartialGuild[];
-  /** In-flight request, shared by parallel renders (e.g. prefetch + navigation). */
   pending?: Promise<DiscordPartialGuild[]>;
 };
 
-// Kept on globalThis so the cache survives hot reloads during development.
 const globalStore = globalThis as typeof globalThis & { __hafkGuildCache?: Map<string, GuildCacheEntry> };
 const guildCache = (globalStore.__hafkGuildCache ??= new Map());
 
@@ -95,11 +89,6 @@ async function loadGuilds(accessToken: string): Promise<DiscordPartialGuild[]> {
   }
 }
 
-/**
- * The user's guilds from Discord. Discord rate limits this endpoint aggressively, so results are
- * cached per user, parallel requests share one call, and on a rate limit the last known list is
- * served instead of failing.
- */
 export async function fetchUserGuilds(userId: string, accessToken: string): Promise<DiscordPartialGuild[]> {
   const entry = guildCache.get(userId);
   if (entry?.guilds && Date.now() - entry.fetchedAt < GUILD_CACHE_TTL_MS) return entry.guilds;
@@ -120,11 +109,6 @@ export async function fetchUserGuilds(userId: string, accessToken: string): Prom
   return pending;
 }
 
-/**
- * Invite link for the bot. After authorizing, Discord sends the admin back to the dashboard
- * (`/api/invite/callback`), which opens the setup of the new server. Any server admin can use it
- * as long as "Public Bot" is enabled in the Developer Portal.
- */
 export function botInviteUrl(guildId?: string) {
   const { DISCORD_CLIENT_ID, BOT_INVITE_PERMISSIONS, DASHBOARD_URL } = env();
   const url = new URL("https://discord.com/oauth2/authorize");

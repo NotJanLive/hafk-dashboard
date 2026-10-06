@@ -2,10 +2,6 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const SESSION_COOKIE = "hafk_session";
 
-/**
- * Optimistic check only: sends visitors without a session cookie to the login. Real
- * authorization happens in the data access layer (src/lib/dal.ts).
- */
 export function proxy(request: NextRequest) {
   if (request.cookies.has(SESSION_COOKIE)) return NextResponse.next();
 
