@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
 import type { Channel, Role } from "@/lib/bot-api/types";
 import { roleColor } from "@/lib/discord/cdn";
+import { formatDiscordTimestamp } from "@/lib/discord/timestamp";
 
 type Context = { channels: Channel[]; roles: Role[] };
 
 const INLINE =
-  /(`[^`\n]+`)|(\*\*[^*\n]+\*\*)|(__[^_\n]+__)|(~~[^~\n]+~~)|(\*[^*\n]+\*)|(_[^_\n]+_)|(\[[^\]\n]+\]\(https?:\/\/[^)\s]+\))|(<@&\d{17,20}>|<#\d{17,20}>|<@!?\d{17,20}>)|(<a?:\w+:\d{17,20}>)|(https?:\/\/[^\s<]+)|(\|\|[^|\n]+\|\|)/g;
+  /(`[^`\n]+`)|(\*\*[^*\n]+\*\*)|(__[^_\n]+__)|(~~[^~\n]+~~)|(\*[^*\n]+\*)|(_[^_\n]+_)|(\[[^\]\n]+\]\(https?:\/\/[^)\s]+\))|(<@&\d{17,20}>|<#\d{17,20}>|<@!?\d{17,20}>)|(<a?:\w+:\d{17,20}>)|(https?:\/\/[^\s<]+)|(\|\|[^|\n]+\|\|)|(<t:-?\d{1,13}(?::[tTdDfFR])?>)/g;
 
 function inline(text: string, ctx: Context, keyPrefix: string): ReactNode[] {
   const nodes: ReactNode[] = [];
@@ -48,6 +49,13 @@ function inline(text: string, ctx: Context, keyPrefix: string): ReactNode[] {
           alt={`:${name}:`}
           className="inline size-[1.375em] align-[-0.3em]"
         />,
+      );
+    } else if (match[12]) {
+      const [, seconds, style] = /^<t:(-?\d+)(?::(\w))?>$/.exec(token)!;
+      nodes.push(
+        <span key={key} className="rounded bg-[#ffffff14] px-1">
+          {formatDiscordTimestamp(Number(seconds), style)}
+        </span>,
       );
     } else if (match[11]) {
       nodes.push(

@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/field";
 import type { ResetPreview } from "@/lib/bot-api/types";
 import { resetBot } from "./actions";
 
-const MODULE_LABELS: Record<string, string> = { embeds: "Embed", "reaction-roles": "Reaction Roles" };
+const MODULE_LABELS: Record<string, string> = { embeds: "Embed", "reaction-roles": "Reaction Roles", polls: "Umfrage" };
 
 function Checkbox({
   checked,

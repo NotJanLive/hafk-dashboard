@@ -77,12 +77,14 @@ export function EmojiPicker({
   serverEmojis,
   guild,
   align = "left",
+  compact = false,
 }: {
   value: string | null;
   onChange: (value: string | null) => void;
   serverEmojis: GuildEmoji[];
   guild: { name: string; iconUrl: string | null };
   align?: "left" | "right";
+  compact?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [unicode, setUnicode] = useState<UnicodeEmoji[] | null>(null);
@@ -211,37 +213,63 @@ export function EmojiPicker({
 
   return (
     <div ref={ref} className="relative">
-      <div className="flex h-10 items-center rounded-[10px] border border-border-strong bg-surface-2 transition-colors focus-within:border-primary hover:border-faint">
-        <button
-          type="button"
-          onClick={() => (open ? setOpen(false) : openPicker())}
-          aria-expanded={open}
-          aria-haspopup="dialog"
-          className="flex h-full min-w-0 flex-1 items-center gap-2.5 px-3 text-left text-sm focus:outline-none"
-        >
-          {value ? (
-            <>
-              <EmojiValue value={value} />
-              <span className="truncate text-muted">{parseCustomEmoji(value)?.name ?? "Emoji ändern"}</span>
-            </>
-          ) : (
-            <>
-              <SmilePlus className="size-5 text-faint" />
-              <span className="text-faint">Emoji wählen</span>
-            </>
-          )}
-        </button>
-        {value && (
+      {compact ? (
+        <div className="group relative size-10">
           <button
             type="button"
-            onClick={() => onChange(null)}
-            aria-label="Emoji entfernen"
-            className="mr-1.5 rounded-md p-1 text-faint transition-colors hover:bg-surface-3 hover:text-text"
+            onClick={() => (open ? setOpen(false) : openPicker())}
+            aria-expanded={open}
+            aria-haspopup="dialog"
+            aria-label={value ? "Emoji ändern" : "Emoji wählen"}
+            title={value ? "Emoji ändern" : "Emoji wählen"}
+            className="flex size-10 items-center justify-center rounded-[10px] border border-border-strong bg-surface-2 transition-colors hover:border-faint focus:border-primary focus:outline-none"
           >
-            <X className="size-4" />
+            {value ? <EmojiValue value={value} /> : <SmilePlus className="size-5 text-faint" />}
           </button>
-        )}
-      </div>
+          {value && (
+            <button
+              type="button"
+              onClick={() => onChange(null)}
+              aria-label="Emoji entfernen"
+              className="absolute -top-1.5 -right-1.5 hidden size-5 items-center justify-center rounded-full border border-border-strong bg-surface-3 text-faint group-focus-within:flex group-hover:flex hover:text-text"
+            >
+              <X className="size-3" />
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="flex h-10 items-center rounded-[10px] border border-border-strong bg-surface-2 transition-colors focus-within:border-primary hover:border-faint">
+          <button
+            type="button"
+            onClick={() => (open ? setOpen(false) : openPicker())}
+            aria-expanded={open}
+            aria-haspopup="dialog"
+            className="flex h-full min-w-0 flex-1 items-center gap-2.5 px-3 text-left text-sm focus:outline-none"
+          >
+            {value ? (
+              <>
+                <EmojiValue value={value} />
+                <span className="truncate text-muted">{parseCustomEmoji(value)?.name ?? "Emoji ändern"}</span>
+              </>
+            ) : (
+              <>
+                <SmilePlus className="size-5 text-faint" />
+                <span className="text-faint">Emoji wählen</span>
+              </>
+            )}
+          </button>
+          {value && (
+            <button
+              type="button"
+              onClick={() => onChange(null)}
+              aria-label="Emoji entfernen"
+              className="mr-1.5 rounded-md p-1 text-faint transition-colors hover:bg-surface-3 hover:text-text"
+            >
+              <X className="size-4" />
+            </button>
+          )}
+        </div>
+      )}
 
       {open && (
         <div
