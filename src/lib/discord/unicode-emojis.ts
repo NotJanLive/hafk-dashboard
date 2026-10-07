@@ -22,7 +22,19 @@ type RawEmoji = {
   order?: number;
   version: number;
   tags?: string[];
+  type?: number;
 };
+
+const EMOJI_PRESENTATION = 1;
+const VARIATION_SELECTOR = "️";
+
+export function discordForm(entry: { emoji: string; type?: number }) {
+  const codePoints = [...entry.emoji];
+  if (entry.type === EMOJI_PRESENTATION && codePoints.length === 2 && codePoints[1] === VARIATION_SELECTOR) {
+    return codePoints[0]!;
+  }
+  return entry.emoji;
+}
 
 let cache: Promise<UnicodeEmoji[]> | null = null;
 
@@ -34,7 +46,7 @@ export function loadUnicodeEmojis() {
         .filter((entry) => entry.group !== undefined && entry.group !== 2 && entry.version <= MAX_VERSION)
         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
         .map((entry) => ({
-          emoji: entry.emoji,
+          emoji: discordForm(entry),
           label: entry.label,
           group: entry.group!,
           search: [entry.label, ...(entry.tags ?? []), ...[codes[entry.hexcode] ?? []].flat()].join(" ").toLowerCase(),

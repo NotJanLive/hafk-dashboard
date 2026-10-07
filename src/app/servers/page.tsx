@@ -91,17 +91,16 @@ export default async function ServersPage() {
   let loadError: string | null = null;
   let canInvite = true;
   try {
-    discordGuilds = await fetchUserGuilds(user.id, user.accessToken);
-    const [guilds, bot] = await Promise.all([
-      botApi.userGuilds(
-        user.id,
-        discordGuilds.map((guild) => guild.id),
-      ),
+    const [userGuilds, bot] = await Promise.all([
+      fetchUserGuilds(user.id, user.accessToken),
       botApi.bot().catch(() => null),
     ]);
-    manageable = guilds;
-    canInvite = !bot || bot.publicBot || bot.inviterIds.includes(user.id);
+    discordGuilds = userGuilds;
+    const candidates = new Set([...discordGuilds.map((guild) => guild.id), ...(bot?.guildIds ?? [])]);
+    manageable = await botApi.userGuilds(user.id, [...candidates]);
+    canInvite = !Array.isArray(bot?.inviterIds) || bot.publicBot || bot.inviterIds.includes(user.id);
   } catch (error) {
+    console.error("Server list could not be loaded", error);
     loadError = describeLoadError(error);
   }
 

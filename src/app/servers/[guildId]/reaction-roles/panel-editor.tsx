@@ -21,6 +21,7 @@ import { MessageEditor } from "@/components/embeds/message-editor";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { ChannelSelect } from "@/components/ui/channel-select";
+import { type Choice, ChoiceGrid } from "@/components/ui/choice-grid";
 import { EmojiPicker } from "@/components/ui/emoji-picker";
 import { Field, Input } from "@/components/ui/field";
 import { SelectMenu } from "@/components/ui/select-menu";
@@ -40,13 +41,13 @@ import { cleanPayload, emptyEmbed } from "@/lib/embeds/payload";
 import { cn } from "@/lib/utils";
 import { savePanel } from "./actions";
 
-const TYPES: { value: ReactionRoleType; label: string; description: string; icon: typeof List }[] = [
+const TYPES: Choice<ReactionRoleType>[] = [
   { value: "BUTTONS", label: "Buttons", description: "Ein Button pro Rolle", icon: MousePointerClick },
   { value: "SELECT", label: "Auswahlmenü", description: "Platzsparend, mit Beschreibungen", icon: List },
   { value: "REACTIONS", label: "Reaktionen", description: "Klassisch per Emoji", icon: SmilePlus },
 ];
 
-const MODES: { value: ReactionRoleMode; label: string; description: string; icon: typeof List }[] = [
+const MODES: Choice<ReactionRoleMode>[] = [
   { value: "NORMAL", label: "Normal", description: "Rollen beliebig nehmen und abgeben", icon: Repeat },
   { value: "UNIQUE", label: "Nur eine", description: "Höchstens eine Rolle aus diesem Panel", icon: CheckCircle2 },
   { value: "VERIFY", label: "Bestätigen", description: "Rollen können nur hinzugefügt werden", icon: ShieldCheck },
@@ -58,38 +59,6 @@ const STYLES: { value: ButtonStyle; label: string; swatch: string }[] = [
   { value: "SUCCESS", label: "Grün", swatch: "bg-[#248046]" },
   { value: "DANGER", label: "Rot", swatch: "bg-[#da373c]" },
 ];
-
-function ChoiceGrid<T extends string>({
-  options,
-  value,
-  onChange,
-}: {
-  options: { value: T; label: string; description: string; icon: typeof List }[];
-  value: T;
-  onChange: (value: T) => void;
-}) {
-  return (
-    <div className="grid gap-2 sm:grid-cols-3" role="radiogroup">
-      {options.map((option) => (
-        <button
-          key={option.value}
-          type="button"
-          role="radio"
-          aria-checked={value === option.value}
-          onClick={() => onChange(option.value)}
-          className={cn(
-            "rounded-xl border p-3 text-left transition-colors",
-            value === option.value ? "border-primary bg-primary-soft" : "border-border-strong hover:bg-surface-2",
-          )}
-        >
-          <option.icon className={cn("size-5", value === option.value ? "text-primary-hover" : "text-muted")} />
-          <span className="mt-2 block text-sm font-bold">{option.label}</span>
-          <span className="mt-0.5 block text-xs text-muted">{option.description}</span>
-        </button>
-      ))}
-    </div>
-  );
-}
 
 export function PanelEditor({
   guildId,

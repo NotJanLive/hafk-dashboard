@@ -48,10 +48,10 @@ export const MODULES: ModuleInfo[] = [
   {
     id: "polls",
     name: "Umfragen",
-    description: "Anonyme Abstimmungen ohne sichtbare Zwischenstände",
+    description: "Abstimmungen, anonym oder öffentlich, mit Live-Ergebnis oder Überraschung am Ende",
     icon: Vote,
     tint: "bg-violet-500/15 text-violet-400",
-    available: false,
+    available: true,
   },
   {
     id: "temp-voice",
