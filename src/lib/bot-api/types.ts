@@ -144,6 +144,62 @@ export type ReactionRolePanelInput = {
   options: ReactionRoleOption[];
 };
 
+export type PollVisibility = "LIVE" | "AFTER_VOTE" | "CLOSED";
+
+export type PollVoter = { id: string; name: string | null; avatarUrl: string | null };
+
+export type PollOption = {
+  id: string;
+  label: string;
+  emoji: string | null;
+  votes: number | null;
+  percent: number | null;
+  voters: PollVoter[] | null;
+};
+
+export type Poll = {
+  id: string;
+  channelId: string;
+  channelName: string | null;
+  messageId: string | null;
+  jumpUrl: string | null;
+  question: string;
+  description: string | null;
+  anonymous: boolean;
+  visibility: PollVisibility;
+  hostResults: boolean;
+  maxChoices: number;
+  allowChange: boolean;
+  pingRoleId: string | null;
+  endsAt: string | null;
+  closedAt: string | null;
+  cancelled: boolean;
+  createdBy: string;
+  createdByName: string | null;
+  createdAt: string;
+  allowedRoleIds: string[];
+  participants: number;
+  resultsVisible: boolean;
+  options: PollOption[];
+};
+
+export type PollInput = {
+  channelId: string;
+  question: string;
+  description: string | null;
+  anonymous: boolean;
+  visibility: PollVisibility;
+  hostResults: boolean;
+  maxChoices: number;
+  allowChange: boolean;
+  pingRoleId: string | null;
+  durationMinutes: number;
+  options: { label: string; emoji: string | null }[];
+  allowedRoleIds: string[];
+};
+
+export type PollSettings = { creatorRoleIds: string[] };
+
 export type ResetPreview = {
   categories: { id: string; label: string; description: string; count: number; required: boolean }[];
   channels: { id: string; channelId: string; name: string; module: string; label: string; exists: boolean }[];

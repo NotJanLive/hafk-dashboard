@@ -9,6 +9,9 @@ import type {
   GuildSummary,
   Health,
   MessagePayload,
+  Poll,
+  PollInput,
+  PollSettings,
   ReactionRolePanel,
   ReactionRolePanelInput,
   ResetPreview,
@@ -161,6 +164,28 @@ export const botApi = {
         method: "DELETE",
         actingUser: userId,
       }),
+  },
+
+  polls: {
+    list: (guildId: string, userId: string) => request<Poll[]>(`/guilds/${id(guildId)}/polls`, { actingUser: userId }),
+    get: (guildId: string, userId: string, pollId: string) =>
+      request<Poll>(`/guilds/${id(guildId)}/polls/${id(pollId)}`, { actingUser: userId }),
+    create: (guildId: string, userId: string, body: PollInput) =>
+      request<Poll>(`/guilds/${id(guildId)}/polls`, { method: "POST", actingUser: userId, body }),
+    close: (guildId: string, userId: string, pollId: string, cancel: boolean) =>
+      request<Poll>(`/guilds/${id(guildId)}/polls/${id(pollId)}/close?cancel=${cancel}`, {
+        method: "POST",
+        actingUser: userId,
+      }),
+    remove: (guildId: string, userId: string, pollId: string, deleteMessage: boolean) =>
+      request<void>(`/guilds/${id(guildId)}/polls/${id(pollId)}?deleteMessage=${deleteMessage}`, {
+        method: "DELETE",
+        actingUser: userId,
+      }),
+    settings: (guildId: string, userId: string) =>
+      request<PollSettings>(`/guilds/${id(guildId)}/polls/settings`, { actingUser: userId }),
+    updateSettings: (guildId: string, userId: string, body: PollSettings) =>
+      request<PollSettings>(`/guilds/${id(guildId)}/polls/settings`, { method: "PUT", actingUser: userId, body }),
   },
 
   reset: {
