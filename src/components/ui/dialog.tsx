@@ -71,7 +71,7 @@ export function DialogBody({ children, className }: { children: ReactNode; class
 
 export function DialogFooter({ children }: { children: ReactNode }) {
   return (
-    <div className="flex justify-end gap-2 rounded-b-2xl border-t border-border bg-surface-2/50 px-6 py-4">
+    <div className="flex flex-wrap justify-end gap-2 rounded-b-2xl border-t border-border bg-surface-2/50 px-6 py-4">
       {children}
     </div>
   );
