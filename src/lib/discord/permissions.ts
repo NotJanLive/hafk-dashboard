@@ -18,6 +18,9 @@ export const REQUIRED_BOT_PERMISSIONS: Record<string, string> = {
   MANAGE_ROLES: "Rollen verwalten",
   MANAGE_CHANNEL: "Kanäle verwalten",
   MESSAGE_MANAGE: "Nachrichten verwalten",
+  MANAGE_THREADS: "Threads verwalten",
+  CREATE_PRIVATE_THREADS: "Private Threads erstellen",
+  MESSAGE_SEND_IN_THREADS: "Nachrichten in Threads senden",
 };
 
 export function missingBotPermissions(granted: string[]) {

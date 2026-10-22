@@ -18,6 +18,7 @@ export type ModuleInfo = {
   icon: LucideIcon;
   tint: string;
   available: boolean;
+  pages?: { path: string; label: string }[];
 };
 
 export const MODULES: ModuleInfo[] = [
@@ -40,10 +41,17 @@ export const MODULES: ModuleInfo[] = [
   {
     id: "tickets",
     name: "Tickets",
-    description: "Support-Tickets mit Kategorien und Verläufen",
+    description: "Support-Tickets mit Kategorien, Formularen und Transkripten",
     icon: Ticket,
     tint: "bg-rose-500/15 text-rose-400",
-    available: false,
+    available: true,
+    pages: [
+      { path: "", label: "Übersicht" },
+      { path: "/categories", label: "Kategorien" },
+      { path: "/panels", label: "Panels" },
+      { path: "/settings", label: "Einstellungen" },
+      { path: "/blacklist", label: "Sperren" },
+    ],
   },
   {
     id: "polls",

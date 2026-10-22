@@ -8,7 +8,7 @@ const schema = z.object({
   DISCORD_CLIENT_SECRET: z.string().min(1),
   BOT_API_URL: z.url().transform((url) => url.replace(/\/$/, "")),
   SHARED_SECRET: z.string().min(32, "SHARED_SECRET must be identical in bot and dashboard"),
-  BOT_INVITE_PERMISSIONS: z.string().regex(/^\d+$/).default("268823632"),
+  BOT_INVITE_PERMISSIONS: z.string().regex(/^\d+$/).default("361046076496"),
 });
 
 export type Env = z.infer<typeof schema>;

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { BotApiError, botApi } from "@/lib/bot-api/client";
+import type { Channel } from "@/lib/bot-api/types";
 import { requireGuild } from "@/lib/dal";
 
 export type FormState = {
@@ -59,4 +60,45 @@ export async function completeSetup(_previous: FormState, formData: FormData): P
 
   revalidatePath(`/servers/${guildId}`, "layout");
   redirect(`/servers/${guildId}?welcome=1`);
+}
+
+export type CreateChannelResult = { ok: true; channel: Channel } | { ok: false; message: string };
+
+const channelInput = z.object({
+  guildId: z.string().regex(/^\d{17,20}$/),
+  name: z.string().trim().min(1).max(100),
+  type: z.enum(["text", "category"]),
+  visibility: z.enum(["PUBLIC", "READ_ONLY", "PRIVATE"]),
+  roleIds: z.array(z.string().regex(/^\d{17,20}$/)).max(25),
+  parentId: z
+    .string()
+    .regex(/^\d{17,20}$/)
+    .nullable(),
+});
+
+export async function createDiscordChannel(
+  guildId: string,
+  name: string,
+  type: "text" | "category",
+  parentId: string | null,
+  visibility: "PUBLIC" | "READ_ONLY" | "PRIVATE" = "PUBLIC",
+  roleIds: string[] = [],
+): Promise<CreateChannelResult> {
+  const parsed = channelInput.safeParse({ guildId, name, type, parentId, visibility, roleIds });
+  if (!parsed.success) return { ok: false, message: "Der Name muss 1 bis 100 Zeichen haben." };
+  const { user } = await requireGuild(parsed.data.guildId);
+  try {
+    const channel = await botApi.createChannel(parsed.data.guildId, user.id, {
+      name: parsed.data.name,
+      type: parsed.data.type,
+      parentId: parsed.data.type === "text" ? parsed.data.parentId : null,
+      visibility: parsed.data.visibility,
+      roleIds: parsed.data.visibility === "PRIVATE" ? parsed.data.roleIds : [],
+    });
+    revalidatePath(`/servers/${parsed.data.guildId}`, "layout");
+    return { ok: true, channel };
+  } catch (error) {
+    if (error instanceof BotApiError) return { ok: false, message: [error.message, ...error.details].join(" ") };
+    throw error;
+  }
 }
