@@ -40,7 +40,17 @@ function formatTimestamp(timestamp: string) {
       });
 }
 
-function EmbedPreview({ embed, channels, roles }: { embed: Embed; channels: Channel[]; roles: Role[] }) {
+export function EmbedPreview({
+  embed,
+  channels,
+  roles,
+  users,
+}: {
+  embed: Embed;
+  channels: Channel[];
+  roles: Role[];
+  users?: Record<string, string>;
+}) {
   const fields = embed.fields ?? [];
   const hasThumbnail = Boolean(embed.thumbnail?.url);
   return (
@@ -58,12 +68,12 @@ function EmbedPreview({ embed, channels, roles }: { embed: Embed; channels: Chan
           )}
           {embed.title && (
             <div className={cn("text-base font-semibold", embed.url ? "text-[#00a8fc]" : "text-[#f2f3f5]")}>
-              <DiscordMarkdown text={embed.title} channels={channels} roles={roles} />
+              <DiscordMarkdown text={embed.title} channels={channels} roles={roles} users={users} />
             </div>
           )}
           {embed.description && (
             <div className="text-[#dbdee1]">
-              <DiscordMarkdown text={embed.description} channels={channels} roles={roles} />
+              <DiscordMarkdown text={embed.description} channels={channels} roles={roles} users={users} />
             </div>
           )}
           {fields.length > 0 && (
@@ -71,10 +81,10 @@ function EmbedPreview({ embed, channels, roles }: { embed: Embed; channels: Chan
               {fields.map((field, index) => (
                 <div key={index} className={field.inline ? "col-span-1" : "col-span-3"}>
                   <div className="font-semibold text-[#f2f3f5]">
-                    <DiscordMarkdown text={field.name || "​"} channels={channels} roles={roles} />
+                    <DiscordMarkdown text={field.name || "​"} channels={channels} roles={roles} users={users} />
                   </div>
                   <div className="text-[#dbdee1]">
-                    <DiscordMarkdown text={field.value || "​"} channels={channels} roles={roles} />
+                    <DiscordMarkdown text={field.value || "​"} channels={channels} roles={roles} users={users} />
                   </div>
                 </div>
               ))}

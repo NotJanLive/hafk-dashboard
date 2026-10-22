@@ -56,10 +56,15 @@ export function Sidebar({
             {MODULES.map((module) => (
               <li key={module.id}>
                 {module.available && setupCompleted ? (
-                  <NavLink
-                    item={{ href: `${base}/${module.id}`, label: module.name, icon: module.icon }}
-                    active={pathname.startsWith(`${base}/${module.id}`)}
-                  />
+                  <>
+                    <NavLink
+                      item={{ href: `${base}/${module.id}`, label: module.name, icon: module.icon }}
+                      active={pathname.startsWith(`${base}/${module.id}`)}
+                    />
+                    {module.pages && pathname.startsWith(`${base}/${module.id}`) && (
+                      <SubNav base={`${base}/${module.id}`} pages={module.pages} pathname={pathname} />
+                    )}
+                  </>
                 ) : (
                   <span
                     aria-disabled
@@ -99,6 +104,37 @@ export function Sidebar({
         ))}
       </nav>
     </>
+  );
+}
+
+function SubNav({
+  base,
+  pages,
+  pathname,
+}: {
+  base: string;
+  pages: { path: string; label: string }[];
+  pathname: string;
+}) {
+  const active = (path: string) =>
+    path === "" ? pathname === base || pathname === `${base}/setup` : pathname.startsWith(base + path);
+  return (
+    <ul className="mt-1 mb-2 ml-[21px] space-y-0.5 border-l border-border-strong pl-3">
+      {pages.map((page) => (
+        <li key={page.path}>
+          <Link
+            href={base + page.path}
+            aria-current={active(page.path) ? "page" : undefined}
+            className={cn(
+              "flex h-8 items-center rounded-md px-2.5 text-[13px] font-semibold text-faint transition-colors hover:bg-surface-2 hover:text-text",
+              active(page.path) && "bg-surface-2 text-text",
+            )}
+          >
+            {page.label}
+          </Link>
+        </li>
+      ))}
+    </ul>
   );
 }
 

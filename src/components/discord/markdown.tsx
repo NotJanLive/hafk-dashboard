@@ -3,7 +3,12 @@ import type { Channel, Role } from "@/lib/bot-api/types";
 import { roleColor } from "@/lib/discord/cdn";
 import { formatDiscordTimestamp } from "@/lib/discord/timestamp";
 
-type Context = { channels: Channel[]; roles: Role[] };
+type Context = {
+  channels: Channel[];
+  roles: Role[];
+  users?: Record<string, string>;
+  emojiSrc?: (id: string, animated: boolean) => string | null;
+};
 
 const INLINE =
   /(`[^`\n]+`)|(\*\*[^*\n]+\*\*)|(__[^_\n]+__)|(~~[^~\n]+~~)|(\*[^*\n]+\*)|(_[^_\n]+_)|(\[[^\]\n]+\]\(https?:\/\/[^)\s]+\))|(<@&\d{17,20}>|<#\d{17,20}>|<@!?\d{17,20}>)|(<a?:\w+:\d{17,20}>)|(https?:\/\/[^\s<]+)|(\|\|[^|\n]+\|\|)|(<t:-?\d{1,13}(?::[tTdDfFR])?>)/g;
@@ -45,7 +50,10 @@ function inline(text: string, ctx: Context, keyPrefix: string): ReactNode[] {
       nodes.push(
         <img
           key={key}
-          src={`https://cdn.discordapp.com/emojis/${id}.${animated ? "gif" : "webp"}?size=44`}
+          src={
+            ctx.emojiSrc?.(id!, Boolean(animated)) ??
+            `https://cdn.discordapp.com/emojis/${id}.${animated ? "gif" : "webp"}?size=44`
+          }
           alt={`:${name}:`}
           className="inline size-[1.375em] align-[-0.3em]"
         />,
@@ -96,11 +104,24 @@ function Mention({ token, ctx }: { token: string; ctx: Context }) {
       <span className="rounded bg-[#5865f24d] px-0.5 font-medium text-[#c9cdfb]">#{channel?.name ?? "unbekannt"}</span>
     );
   }
-  return <span className="rounded bg-[#5865f24d] px-0.5 font-medium text-[#c9cdfb]">@Nutzer</span>;
+  const user = ctx.users?.[id];
+  return <span className="rounded bg-[#5865f24d] px-0.5 font-medium text-[#c9cdfb]">@{user ?? "Nutzer"}</span>;
 }
 
-export function DiscordMarkdown({ text, channels, roles }: { text: string; channels: Channel[]; roles: Role[] }) {
-  const ctx = { channels, roles };
+export function DiscordMarkdown({
+  text,
+  channels,
+  roles,
+  users,
+  emojiSrc,
+}: {
+  text: string;
+  channels: Channel[];
+  roles: Role[];
+  users?: Record<string, string>;
+  emojiSrc?: (id: string, animated: boolean) => string | null;
+}) {
+  const ctx = { channels, roles, users, emojiSrc };
   const lines = text.split("\n");
   return (
     <>
